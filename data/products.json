@@ -1,0 +1,42 @@
+[
+  {
+    "id": "bc_thit",
+    "name": "Bánh Chưng Thường",
+    "price": 50000,
+    "category": "CHUNG",
+    "icon": "🍃",
+    "weight": "1.2 kg"
+  },
+  {
+    "id": "bc_chay",
+    "name": "Bánh Chưng Chay",
+    "price": 130000,
+    "category": "CHUNG",
+    "icon": "🌱",
+    "weight": "1.0 kg"
+  },
+  {
+    "id": "bc_ngot",
+    "name": "Bánh Chưng Ngọt",
+    "price": 180000,
+    "category": "CHUNG",
+    "icon": "⭐",
+    "weight": "1.4 kg"
+  },
+  {
+    "id": "bt_thuong",
+    "name": "Bánh Tét Thường",
+    "price": 160000,
+    "category": "TET",
+    "icon": "🎋",
+    "weight": "1.2 kg"
+  },
+  {
+    "id": "bt_chay",
+    "name": "Bánh Tét Chay",
+    "price": 110000,
+    "category": "TET",
+    "icon": "🍌",
+    "weight": "1.0 kg"
+  }
+]

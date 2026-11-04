@@ -1,0 +1,19 @@
+[
+  {
+    "customerName": "Do Nguyen Toan",
+    "phone": "0344842232",
+    "address": "xom 1 thon 13",
+    "deliveryDate": "2026-02-06",
+    "deliveryTime": "Sáng (07:00 - 11:00)",
+    "items": {
+      "bc_thit": 1,
+      "bt_chay": 1
+    },
+    "totalAmount": 160000,
+    "deposit": 100000,
+    "status": "Đã cọc",
+    "notes": "",
+    "id": "TB2026-001",
+    "createdAt": "2026-11-04"
+  }
+]
