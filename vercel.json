@@ -1,7 +1,7 @@
 {
   "functions": {
-    "api/products.ts": {
-      "includeFiles": "data/products.json"
+    "api/[collection].ts": {
+      "includeFiles": "data/*.json"
     }
   }
 }
