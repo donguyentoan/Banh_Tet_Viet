@@ -29,7 +29,12 @@ export function AppHeader() {
 
   useEffect(() => {
     void fetch("/api/auth/session")
-      .then((response) => response.json() as Promise<{ authenticated?: boolean }>)
+      .then(async (response) => {
+        if (!response.ok || !response.headers.get("content-type")?.includes("application/json")) {
+          throw new Error("Auth API is not deployed");
+        }
+        return (await response.json()) as { authenticated?: boolean };
+      })
       .then((result) => setIsAdmin(Boolean(result.authenticated)))
       .catch(() => setIsAdmin(false));
   }, []);
@@ -44,6 +49,9 @@ export function AppHeader() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
       });
+      if (!response.headers.get("content-type")?.includes("application/json")) {
+        throw new Error("API quản trị chưa có trong bản deploy này. Cần đưa mã mới lên nhánh main rồi deploy lại.");
+      }
       const result = (await response.json()) as { message?: string; authenticated?: boolean };
       if (!response.ok) throw new Error(result.message ?? "Không đăng nhập được");
       setIsAdmin(Boolean(result.authenticated));
