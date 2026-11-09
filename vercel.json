@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/[collection].ts": {
+    "api/[...path].ts": {
       "includeFiles": "data/*.json"
     }
   }
