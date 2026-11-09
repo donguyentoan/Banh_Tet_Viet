@@ -1,4 +1,4 @@
-# 🍃 Bánh Tết Việt 2026 — Hệ thống quản lý đặt Bánh Chưng & Bánh Tét
+# 🍃 Bánh Tết Việt 2027 — Hệ thống quản lý đặt Bánh Chưng & Bánh Tét
 
 Chuyển đổi từ file `quanlybanh.html` (single-file vanilla JS + localStorage) sang stack **React + TypeScript + Vite**, dữ liệu lưu trong **file JSON**.
 
@@ -94,4 +94,5 @@ Giữ nguyên 100% UI và nghiệp vụ của `quanlybanh.html`:
 3. **In chỉ phiếu** — thêm `@media print` ẩn dashboard/banner/header/footer, chỉ in `#print-area`.
 4. **Validation thật** — Zod chặn SĐT sai định dạng, địa chỉ quá ngắn, đơn không có bánh nào.
 5. **Không còn innerHTML** — toàn bộ render bằng React, không có rủi ro XSS.
+# Banh_Tet_Viet
 # Banh_Tet_Viet

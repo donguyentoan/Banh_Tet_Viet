@@ -5,12 +5,16 @@ import { ArrowLeft, ShoppingCart, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OrderForm } from "@/components/orders/order-form";
 import { useCreateOrder, useProducts } from "@/hooks/use-orders";
-import { calculateTotal, type OrderFormValues } from "@/lib/types";
+import { calculateTotal, type OrderFormValues, type Product } from "@/lib/types";
+
+/** Mảng rỗng ổn định - tránh tạo reference mới mỗi render */
+const EMPTY_PRODUCTS: Product[] = [];
 
 export function CreateOrderPage() {
   const navigate = useNavigate();
   const createOrder = useCreateOrder();
-  const { data: products = [] } = useProducts();
+  const { data } = useProducts();
+  const products = data ?? EMPTY_PRODUCTS;
   const [submitted, setSubmitted] = useState(false);
 
   // Tự động chuyển về trang danh sách sau khi tạo thành công
@@ -46,9 +50,9 @@ export function CreateOrderPage() {
   }
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full min-w-0 space-y-4 sm:space-y-6">
       {/* Banner tiêu đề */}
-      <div className="relative overflow-hidden rounded-2xl border border-amber-300 bg-gradient-to-r from-red-700 via-red-800 to-red-900 px-6 py-6 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-2xl border border-amber-300 bg-gradient-to-r from-red-800 via-red-700 to-amber-700 px-4 py-4 text-white shadow-lg sm:px-6 sm:py-6">
         <div
           className="pointer-events-none absolute -right-6 -top-8 text-[10rem] leading-none opacity-10"
           aria-hidden
@@ -61,16 +65,12 @@ export function CreateOrderPage() {
               <ShoppingCart className="size-7 text-amber-300" />
             </span>
             <div>
-              <h1 className="flex items-center gap-2 text-2xl font-extrabold">
+              <h1 className="flex items-center gap-2 text-lg font-extrabold sm:text-2xl">
                 Tạo Đơn Hàng Mới
                 <Sparkles className="size-5 text-amber-300" />
               </h1>
               <p className="mt-0.5 text-xs font-medium text-red-100">
-                Nhập thông tin khách hàng, chọn bánh &amp; ngày giao — lưu trực
-                tiếp vào{" "}
-                <code className="rounded bg-white/15 px-1 py-0.5 font-mono text-[11px] text-amber-200">
-                  data/orders.json
-                </code>
+                Nhập thông tin khách hàng, chọn bánh &amp; ngày giao hàng
               </p>
             </div>
           </div>
@@ -86,7 +86,7 @@ export function CreateOrderPage() {
       </div>
 
       {/* Form tạo đơn - chiếm toàn bộ chiều rộng */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:p-6">
         <OrderForm
           onSubmit={handleSubmit}
           isPending={createOrder.isPending}

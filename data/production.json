@@ -1,0 +1,43 @@
+[
+  {
+    "date": "2027-02-02",
+    "items": {
+      "bc_thit": 17,
+      "bc_chay": 27,
+      "bc_dacbiet": 25,
+      "bt_thit": 30,
+      "bt_chuoi": 33,
+      "bt_cam": 27
+    },
+    "id": "SX-003",
+    "updatedAt": "2026-11-09T09:44:13.448Z"
+  },
+  {
+    "id": "SX-001",
+    "date": "2026-02-13",
+    "items": {
+      "bc_thit": 60,
+      "bc_chay": 30,
+      "bc_dacbiet": 20,
+      "bt_thit": 40,
+      "bt_chuoi": 25,
+      "bt_cam": 20
+    },
+    "notes": "Nấu số lượng chưng, gói bánh tét chiều.",
+    "updatedAt": "2026-02-13T09:00:00.000Z"
+  },
+  {
+    "id": "SX-002",
+    "date": "2026-02-14",
+    "items": {
+      "bc_thit": 70,
+      "bc_chay": 35,
+      "bc_dacbiet": 25,
+      "bt_thit": 45,
+      "bt_chuoi": 30,
+      "bt_cam": 25
+    },
+    "notes": "",
+    "updatedAt": "2026-02-14T09:00:00.000Z"
+  }
+]

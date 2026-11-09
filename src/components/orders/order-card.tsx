@@ -58,14 +58,12 @@ export function OrderCard({
   const productMap = new Map(products.map((p) => [p.id, p]));
 
   let totalCakesInOrder = 0;
-  const summaryCakes: string[] = [];
 
   for (const [productId, qty] of Object.entries(order.items)) {
     if (qty <= 0) continue;
     const product = productMap.get(productId);
     if (!product) continue;
     totalCakesInOrder += qty;
-    summaryCakes.push(`${product.icon} ${qty}`);
   }
 
   const remaining = getRemaining(order);
@@ -136,20 +134,6 @@ export function OrderCard({
           <span className="text-gray-600">{order.deliveryTime}</span>
         </div>
       </div>
-
-      {/* Tóm tắt bánh */}
-      {summaryCakes.length > 0 && (
-        <div className="mx-4 mb-3 flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50 px-2.5 py-1.5">
-          <span
-            className="truncate text-xs font-medium text-gray-700"
-            title={summaryCakes.join(" • ")}
-          >
-            {summaryCakes.slice(0, 5).join(" • ")}
-            {summaryCakes.length > 5 ? " ..." : ""}
-          </span>
-        </div>
-      )}
-
       {/* Tiền */}
       <div className="mt-auto grid grid-cols-2 gap-2 border-t border-gray-100 bg-gray-50/70 px-4 py-3">
         <div>
@@ -171,7 +155,7 @@ export function OrderCard({
       </div>
 
       {/* Chân card: đổi trạng thái + hành động */}
-      <div className="flex items-center justify-between gap-2 border-t border-gray-100 px-3 py-2">
+      <div className="flex items-center justify-between gap-2 border-t border-gray-100 px-3 py-2.5">
         <Select
           items={STATUS_ITEMS}
           value={order.status}
@@ -179,7 +163,7 @@ export function OrderCard({
             onStatusChange(order.id, (value ?? order.status) as OrderStatus)
           }
         >
-          <SelectTrigger className="h-8 w-[145px] cursor-pointer bg-white py-1 text-xs font-semibold">
+          <SelectTrigger className="h-10 min-w-0 flex-1 cursor-pointer bg-white py-1 text-xs font-semibold sm:h-8 sm:flex-none sm:w-[145px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -195,7 +179,7 @@ export function OrderCard({
           <Button
             variant="ghost"
             size="icon"
-            className="size-7 text-blue-600 hover:bg-blue-50"
+            className="size-10 text-blue-600 hover:bg-blue-50 sm:size-8"
             title="Xem chi tiết & In phiếu"
             onClick={() => onView(order.id)}
           >
@@ -204,7 +188,7 @@ export function OrderCard({
           <Button
             variant="ghost"
             size="icon"
-            className="size-7 text-amber-600 hover:bg-amber-50"
+            className="size-10 text-amber-600 hover:bg-amber-50 sm:size-8"
             title="Sửa đơn hàng"
             onClick={() => onEdit(order.id)}
           >
@@ -213,7 +197,7 @@ export function OrderCard({
           <Button
             variant="ghost"
             size="icon"
-            className="size-7 text-red-600 hover:bg-red-50"
+            className="size-10 text-red-600 hover:bg-red-50 sm:size-8"
             title="Xóa đơn"
             onClick={() => onDelete(order.id)}
           >

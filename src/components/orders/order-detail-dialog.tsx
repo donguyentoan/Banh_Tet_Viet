@@ -40,15 +40,15 @@ export function OrderDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] w-[calc(100%-1.5rem)] max-w-3xl overflow-y-auto border-amber-300 sm:max-w-3xl">
+      <DialogContent className="max-h-[92vh] w-[calc(100%-1rem)] min-w-0 max-w-3xl overflow-x-hidden overflow-y-auto border-amber-300 p-3 sm:w-[calc(100%-2rem)] sm:p-4 sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle className="sr-only">Chi tiết đơn hàng</DialogTitle>
         </DialogHeader>
 
         <div id="print-area">
           <div className="border-b-2 border-dashed border-gray-300 pb-4 text-center">
-            <h2 className="text-2xl font-black uppercase text-red-700">
-              🌺 PHIẾU ĐẶT BÁNH TẾT 2026 🌺
+            <h2 className="text-xl font-black uppercase text-red-700 sm:text-2xl">
+              🌺 PHIẾU ĐẶT BÁNH TẾT 2027 🌺
             </h2>
             <p className="mt-1 text-xs text-gray-500">
               Bánh Chưng - Bánh Tét Gia Truyền Chuẩn Vị Tết Việt
@@ -58,7 +58,7 @@ export function OrderDetailDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 border-b border-gray-200 py-4 text-sm">
+          <div className="grid grid-cols-1 gap-3 border-b border-gray-200 py-4 text-sm sm:grid-cols-2 sm:gap-4">
             <div>
               <p className="text-xs text-gray-500">Khách hàng:</p>
               <p className="font-bold text-gray-800">{order.customerName}</p>
@@ -67,7 +67,7 @@ export function OrderDetailDialog({
               <p className="text-xs text-gray-500">Số điện thoại:</p>
               <p className="font-bold text-gray-800">{order.phone}</p>
             </div>
-            <div className="col-span-2">
+            <div className="sm:col-span-2">
               <p className="text-xs text-gray-500">Địa chỉ nhận bánh:</p>
               <p className="font-medium text-gray-800">{order.address}</p>
             </div>
@@ -87,10 +87,43 @@ export function OrderDetailDialog({
             </div>
           </div>
 
-          <div className="py-4">
+          <div className="min-w-0 py-4">
             <h4 className="mb-2 text-sm font-bold text-gray-800">
               Chi tiết sản phẩm đã đặt:
             </h4>
+            <div className="space-y-2 sm:hidden">
+              {items.map(([productId, qty]) => {
+                const product = productMap.get(productId);
+                if (!product) return null;
+                return (
+                  <div
+                    key={productId}
+                    className="rounded-lg border border-gray-200 bg-white p-3"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="min-w-0 text-xs font-semibold leading-snug text-gray-800">
+                        {product.icon} {product.name}
+                      </p>
+                      <span className="shrink-0 rounded-full bg-red-50 px-2 py-0.5 text-xs font-bold text-red-700">
+                        × {qty}
+                      </span>
+                    </div>
+                    <div className="mt-2 grid grid-cols-2 gap-2 border-t border-gray-100 pt-2 text-xs">
+                      <div>
+                        <p className="text-gray-500">Đơn giá</p>
+                        <p className="font-medium text-gray-700">{formatMoney(product.price)}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-gray-500">Thành tiền</p>
+                        <p className="font-bold text-gray-900">{formatMoney(product.price * qty)}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="hidden min-w-0 sm:block">
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-100">
@@ -123,22 +156,23 @@ export function OrderDetailDialog({
                 })}
               </TableBody>
             </Table>
+            </div>
           </div>
 
           <div className="space-y-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
-            <div className="flex justify-between">
+            <div className="flex flex-wrap justify-between gap-x-2">
               <span className="text-gray-600">Tổng tiền bánh:</span>
               <span className="font-bold text-gray-900">
                 {formatMoney(order.totalAmount)}
               </span>
             </div>
-            <div className="flex justify-between text-emerald-700">
+            <div className="flex flex-wrap justify-between gap-x-2 text-emerald-700">
               <span>Đã đặt cọc trước:</span>
               <span className="font-bold">-{formatMoney(order.deposit)}</span>
             </div>
-            <div className="flex justify-between border-t border-amber-300 pt-2 text-base font-extrabold text-red-700">
+            <div className="flex flex-wrap justify-between gap-x-2 border-t border-amber-300 pt-2 text-sm font-extrabold text-red-700 sm:text-base">
               <span>Còn lại thu khi giao bánh:</span>
-              <span>{formatMoney(order.totalAmount - order.deposit)}</span>
+              <span className="whitespace-nowrap">{formatMoney(order.totalAmount - order.deposit)}</span>
             </div>
             {order.notes ? (
               <div className="border-t border-amber-200 pt-2 text-xs text-gray-600">
@@ -147,19 +181,19 @@ export function OrderDetailDialog({
             ) : null}
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-4 border-t border-gray-200 pt-4 text-center text-xs text-gray-500">
+          <div className="mt-4 grid grid-cols-1 gap-3 border-t border-gray-200 pt-4 text-center text-xs text-gray-500 sm:mt-6 sm:grid-cols-2 sm:gap-4">
             <div>
               <p className="font-bold text-gray-700">Người Đặt Bánh</p>
-              <p className="mt-8 italic">(Ký &amp; ghi rõ họ tên)</p>
+              <p className="mt-4 italic sm:mt-8">(Ký &amp; ghi rõ họ tên)</p>
             </div>
             <div>
               <p className="font-bold text-gray-700">Bánh Tết Gia Truyền</p>
-              <p className="mt-8 italic">(Xác nhận &amp; Đóng dấu)</p>
+              <p className="mt-4 italic sm:mt-8">(Xác nhận &amp; Đóng dấu)</p>
             </div>
           </div>
         </div>
 
-        <DialogFooter className="no-print mt-6 border-t border-gray-200 pt-4">
+        <DialogFooter className="no-print -mx-3 -mb-3 mt-4 border-t border-gray-200 p-3 pt-4 sm:-mx-4 sm:-mb-4 sm:mt-6 sm:p-4 sm:pt-4">
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
             Đóng
           </Button>

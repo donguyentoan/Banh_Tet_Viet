@@ -12,7 +12,7 @@ const MOCK_ORDERS: Order[] = [
     customerName: "Nguyễn Văn An",
     phone: "0908123456",
     address: "123 Nguyễn Huệ, Quận 1, TP.HCM",
-    deliveryDate: "2026-02-15",
+    deliveryDate: "2027-02-04",
     deliveryTime: "Sáng (07:00 - 11:00)",
     items: { bc_thit: 4, bt_thit: 2 },
     totalAmount: 920000,
@@ -26,7 +26,7 @@ const MOCK_ORDERS: Order[] = [
     customerName: "Trần Thị Mai",
     phone: "0912987654",
     address: "45 Lê Lợi, Quận 1",
-    deliveryDate: "2026-02-16",
+    deliveryDate: "2027-02-05",
     deliveryTime: "Chiều (13:00 - 17:00)",
     items: { bc_dacbiet: 2, bt_cam: 2 },
     totalAmount: 930000,
@@ -40,7 +40,7 @@ const MOCK_ORDERS: Order[] = [
     customerName: "Phạm Hoàng Long",
     phone: "0977443322",
     address: "88 Võ Văn Tần, Quận 3",
-    deliveryDate: "2026-02-14",
+    deliveryDate: "2027-02-03",
     deliveryTime: "Sáng (07:00 - 11:00)",
     items: { bc_chay: 5 },
     totalAmount: 650000,
@@ -168,6 +168,15 @@ describe("dashboard stats", () => {
     expect(stats.cookingCount).toBe(1);
     expect(stats.pendingDelivery).toBe(2);
   });
+
+  it("đếm đơn cần giao trong dải 27-29 Tết", () => {
+    const stats = calculateDashboardStats(MOCK_ORDERS, MOCK_PRODUCTS);
+
+    // TB2026-001 (28 Tết, Đã cọc) + TB2026-002 (29 Tết, Đang nấu/gói)
+    // TB2026-003 (27 Tết) đã giao nên không tính vào "cần giao"
+    expect(stats.peakDeliveryCount).toBe(2);
+    expect(stats.peakCookingCount).toBe(1);
+  });
 });
 
 describe("filters", () => {
@@ -204,7 +213,7 @@ describe("filters", () => {
     expect(
       applyFilters(
         MOCK_ORDERS,
-        { ...base, deliveryDate: "2026-02-14" },
+        { ...base, deliveryDate: "2027-02-03" },
         MOCK_PRODUCTS,
       ),
     ).toHaveLength(1);

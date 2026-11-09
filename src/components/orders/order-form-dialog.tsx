@@ -12,6 +12,8 @@ import type { Order, OrderFormValues } from "@/lib/types";
 interface OrderFormDialogProps {
   open: boolean;
   order: Order | null;
+  /** Giá trị điền sẵn khi tạo mới (VD: từ Ô Ghi Nhanh nhanh) */
+  prefill?: OrderFormValues | null;
   onOpenChange: (open: boolean) => void;
   onSubmit: (values: OrderFormValues) => void;
   isPending?: boolean;
@@ -20,6 +22,7 @@ interface OrderFormDialogProps {
 export function OrderFormDialog({
   open,
   order,
+  prefill = null,
   onOpenChange,
   onSubmit,
   isPending = false,
@@ -45,6 +48,7 @@ export function OrderFormDialog({
 
         <OrderForm
           order={order}
+          prefill={prefill}
           onSubmit={onSubmit}
           isPending={isPending}
           resetKey={open ? "open" : "closed"}

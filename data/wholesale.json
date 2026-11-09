@@ -1,0 +1,39 @@
+[
+  {
+    "id": "BH-001",
+    "marketId": "cho_ben_thanh",
+    "date": "2026-02-14",
+    "items": {
+      "bc_thit": 20,
+      "bc_chay": 10,
+      "bt_thit": 15
+    },
+    "totalAmount": 4920000,
+    "notes": "Giao trước 6h sáng ngày 27 Tết.",
+    "createdAt": "2026-02-10T02:00:00.000Z"
+  },
+  {
+    "id": "BH-002",
+    "marketId": "cho_nguyen_an",
+    "date": "2026-02-15",
+    "items": {
+      "bc_thit": 15,
+      "bt_cam": 8
+    },
+    "totalAmount": 2920000,
+    "notes": "",
+    "createdAt": "2026-02-10T03:00:00.000Z"
+  },
+  {
+    "id": "BH-003",
+    "marketId": "cho_hoa_khang",
+    "date": "2026-02-16",
+    "items": {
+      "bc_chay": 25,
+      "bt_chuoi": 12
+    },
+    "totalAmount": 3684000,
+    "notes": "Cô Nhung lấy thêm nếu dư.",
+    "createdAt": "2026-02-11T01:30:00.000Z"
+  }
+]

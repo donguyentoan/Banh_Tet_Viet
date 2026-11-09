@@ -51,7 +51,7 @@ export function OrderToolbar() {
   }, [searchInput, filters.search, setSearch]);
 
   return (
-    <div className="flex flex-col items-center justify-between gap-4 border-b border-gray-200 bg-gradient-to-r from-red-50/50 via-white to-amber-50/30 p-4 md:flex-row sm:p-5">
+    <div className="flex flex-col items-stretch justify-between gap-3 border-b border-gray-200 bg-gradient-to-r from-red-50/50 via-white to-amber-50/30 p-3 sm:gap-4 sm:p-5 md:flex-row md:items-center">
       <div className="relative w-full md:w-80">
         <Search className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400" />
         <Input
@@ -62,7 +62,7 @@ export function OrderToolbar() {
         />
       </div>
 
-      <div className="flex w-full flex-wrap items-center gap-3 md:w-auto md:justify-end">
+      <div className="grid w-full grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap sm:gap-3 md:w-auto md:justify-end">
         <Select
           items={STATUS_ITEMS}
           value={filters.status}
@@ -72,7 +72,7 @@ export function OrderToolbar() {
             )
           }
         >
-          <SelectTrigger className="w-[170px] bg-white font-medium">
+          <SelectTrigger className="w-full bg-white font-medium sm:w-[170px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -92,7 +92,7 @@ export function OrderToolbar() {
             setCakeFilter((value ?? ALL) as "ALL" | "CHUNG" | "TET")
           }
         >
-          <SelectTrigger className="w-[160px] bg-white font-medium">
+          <SelectTrigger className="w-full bg-white font-medium sm:w-[160px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -110,7 +110,7 @@ export function OrderToolbar() {
               setDeliveryDateFilter(event.target.value || ALL)
             }
             title="Lọc theo ngày giao (bỏ trống = tất cả)"
-            className="w-[160px] bg-white font-medium"
+            className="w-full bg-white font-medium sm:w-[160px]"
           />
           {filters.deliveryDate !== ALL && (
             <Button
@@ -132,7 +132,7 @@ export function OrderToolbar() {
             setSort((value ?? "NEWEST") as "NEWEST" | "OLDEST" | "URGENT")
           }
         >
-          <SelectTrigger className="w-[170px] border-amber-300 bg-amber-50 font-semibold text-amber-900">
+          <SelectTrigger className="w-full border-amber-300 bg-amber-50 font-semibold text-amber-900 sm:w-[170px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

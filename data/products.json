@@ -1,42 +1,62 @@
 [
   {
     "id": "bc_thit",
-    "name": "Bánh Chưng Thường",
-    "price": 50000,
+    "name": "Bánh Chưng Thịt Mỡ Đậu Xanh",
+    "price": 150000,
+    "wholesalePrice": 120000,
     "category": "CHUNG",
-    "icon": "🍃",
+    "code": "CM",
+    "icon": "🍖",
     "weight": "1.2 kg"
   },
   {
     "id": "bc_chay",
-    "name": "Bánh Chưng Chay",
+    "name": "Bánh Chưng Chay Đậu Xanh Hạt Sen",
     "price": 130000,
+    "wholesalePrice": 105000,
     "category": "CHUNG",
-    "icon": "🌱",
+    "code": "CC",
+    "icon": "🥬",
     "weight": "1.0 kg"
   },
   {
-    "id": "bc_ngot",
-    "name": "Bánh Chưng Ngọt",
+    "id": "bc_dacbiet",
+    "name": "Bánh Chưung Đặc Biệt Trứng Muối Nấm Đông Cô",
     "price": 180000,
+    "wholesalePrice": 145000,
     "category": "CHUNG",
-    "icon": "⭐",
+    "code": "CĐB",
+    "icon": "✨",
     "weight": "1.4 kg"
   },
   {
-    "id": "bt_thuong",
-    "name": "Bánh Tét Thường",
+    "id": "bt_thit",
+    "name": "Bánh Tét Nhân Thịt Trứng Muối",
     "price": 160000,
+    "wholesalePrice": 128000,
     "category": "TET",
-    "icon": "🎋",
+    "code": "TT",
+    "icon": "🥓",
     "weight": "1.2 kg"
   },
   {
-    "id": "bt_chay",
-    "name": "Bánh Tét Chay",
+    "id": "bt_chuoi",
+    "name": "Bánh Tét Nhân Chuối Ngọt",
     "price": 110000,
+    "wholesalePrice": 88000,
     "category": "TET",
+    "code": "TC",
     "icon": "🍌",
     "weight": "1.0 kg"
+  },
+  {
+    "id": "bt_cam",
+    "name": "Bánh Tét Nếp Cẩm Trứng Muối Đặc Sản",
+    "price": 175000,
+    "wholesalePrice": 140000,
+    "category": "TET",
+    "code": "TMC",
+    "icon": "🍚",
+    "weight": "1.2 kg"
   }
 ]

@@ -9,6 +9,10 @@ const rootDir = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.resolve(rootDir, "data");
 const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
 const PRODUCTS_FILE = path.join(DATA_DIR, "products.json");
+const MARKETS_FILE = path.join(DATA_DIR, "markets.json");
+const WHOLESALE_FILE = path.join(DATA_DIR, "wholesale.json");
+const PRODUCTION_FILE = path.join(DATA_DIR, "production.json");
+const INVENTORY_FILE = path.join(DATA_DIR, "inventory.json");
 
 async function readJson<T>(file: string): Promise<T> {
   const raw = await fs.readFile(file, "utf-8");
@@ -57,6 +61,46 @@ function slugify(name: string): string {
   return slug || "san_pham";
 }
 
+/** Mô tả từng collection được expose qua REST API */
+type CollectionKey =
+  | "orders"
+  | "products"
+  | "markets"
+  | "wholesale"
+  | "production"
+  | "inventory";
+
+interface CollectionSpec {
+  file: string;
+  /** Tiền tố id tự sinh khi POST */
+  idPrefix?: string;
+  /** Sinh id bằng slugify(tên) thay vì prefix + seq */
+  slugFrom?: string;
+  /** Collection có gộp theo ngày khi POST (production/inventory) */
+  upsertByDate?: boolean;
+  /** Trường ngày dùng để gộp */
+  dateField?: string;
+}
+
+const COLLECTIONS: Record<CollectionKey, CollectionSpec> = {
+  orders: { file: ORDERS_FILE, idPrefix: "TB2027" },
+  products: { file: PRODUCTS_FILE, slugFrom: "name" },
+  markets: { file: MARKETS_FILE, slugFrom: "name" },
+  wholesale: { file: WHOLESALE_FILE, idPrefix: "BH" },
+  production: {
+    file: PRODUCTION_FILE,
+    idPrefix: "SX",
+    upsertByDate: true,
+    dateField: "date",
+  },
+  inventory: {
+    file: INVENTORY_FILE,
+    idPrefix: "TON",
+    upsertByDate: true,
+    dateField: "date",
+  },
+};
+
 /**
  * Dev/preview middleware exposing the JSON files as a tiny REST API.
  *
@@ -65,19 +109,29 @@ function slugify(name: string): string {
  *
  *   GET    /api/products    -> list          POST   /api/products    -> create
  *   PUT    /api/products/:id-> update        DELETE /api/products/:id-> remove
+ *
+ *   GET    /api/markets     -> list          POST   /api/markets     -> create
+ *   PUT    /api/markets/:id -> update        DELETE /api/markets/:id -> remove
+ *
+ *   GET    /api/wholesale   -> list          POST   /api/wholesale   -> create
+ *   PUT    /api/wholesale/:id-> update       DELETE /api/wholesale/:id-> remove
+ *
+ *   GET    /api/production  -> list          POST   /api/production  -> upsert theo ngày
+ *   GET    /api/inventory   -> list          POST   /api/inventory   -> upsert theo ngày
  */
 function jsonApiPlugin(): Plugin {
   const handler: Connect.NextHandleFunction = async (req, res, next) => {
     const url = new URL(req.url ?? "/", "http://localhost");
     const method = (req.method ?? "GET").toUpperCase();
 
-    const isOrders = url.pathname.startsWith("/api/orders");
-    const isProducts = url.pathname.startsWith("/api/products");
-    if (!isOrders && !isProducts) return next();
+    const key = (Object.keys(COLLECTIONS) as CollectionKey[]).find((k) =>
+      url.pathname.startsWith(`/api/${k}`),
+    );
+    if (!key) return next();
 
-    const collection = isOrders ? "/api/orders" : "/api/products";
-    const file = isOrders ? ORDERS_FILE : PRODUCTS_FILE;
-    const idPrefix = isOrders ? "TB2026" : "SP";
+    const spec = COLLECTIONS[key];
+    const collection = `/api/${key}`;
+    const file = spec.file;
     const id =
       decodeURIComponent(url.pathname.replace(new RegExp(`^${collection}/?`), "")) ||
       null;
@@ -89,9 +143,29 @@ function jsonApiPlugin(): Plugin {
 
       if (method === "POST" && !id) {
         const body = await readBody(req);
-        const baseId = isOrders
-          ? nextId(idPrefix, items.map((i) => i.id))
-          : slugify(String(body.name ?? "san_pham"));
+
+        // Gộp theo ngày: POST lần 2 cùng ngày = cập nhật bản ghi cũ
+        if (spec.upsertByDate && spec.dateField) {
+          const dateValue = body[spec.dateField];
+          const existingIndex = items.findIndex(
+            (i) => i[spec.dateField!] === dateValue,
+          );
+          if (existingIndex !== -1) {
+            items[existingIndex] = {
+              ...items[existingIndex],
+              ...body,
+              id: items[existingIndex].id,
+              updatedAt: new Date().toISOString(),
+            };
+            await writeJson(file, items);
+            return json(res, 200, items[existingIndex]);
+          }
+        }
+
+        const baseId = spec.slugFrom
+          ? slugify(String(body[spec.slugFrom] ?? "san_pham"))
+          : nextId(spec.idPrefix ?? "ID", items.map((i) => i.id));
+
         // Đảm bảo id duy nhất
         let uniqueId = baseId;
         let suffix = 2;
@@ -99,11 +173,17 @@ function jsonApiPlugin(): Plugin {
           uniqueId = `${baseId}_${suffix}`;
           suffix += 1;
         }
+
+        const now = new Date().toISOString();
         const created = {
           ...body,
           id: body.id ?? uniqueId,
-          ...(isOrders
-            ? { createdAt: body.createdAt ?? new Date().toISOString().slice(0, 10) }
+          ...(key === "orders"
+            ? { createdAt: body.createdAt ?? now.slice(0, 10) }
+            : {}),
+          ...(key === "wholesale" ? { createdAt: body.createdAt ?? now } : {}),
+          ...(key === "production" || key === "inventory"
+            ? { updatedAt: now }
             : {}),
         };
         items.unshift(created);
@@ -115,7 +195,7 @@ function jsonApiPlugin(): Plugin {
         const index = items.findIndex((i) => i.id === id);
         if (index === -1) {
           return json(res, 404, {
-            message: `Không tìm thấy ${isOrders ? "đơn" : "sản phẩm"} #${id}`,
+            message: `Không tìm thấy ${key} #${id}`,
           });
         }
 

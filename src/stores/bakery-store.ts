@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { OrderStatus } from "@/lib/types";
+import type { OrderFormValues, OrderStatus } from "@/lib/types";
 
 export type SortOption = "NEWEST" | "OLDEST" | "URGENT";
 
@@ -17,6 +17,8 @@ export interface UIState {
   detailOrderId: string | null;
   isFormOpen: boolean;
   isDetailOpen: boolean;
+  /** Giá trị điền sẵn vào form khi mở từ Ô Ghi Nhanh nhanh */
+  prefill: OrderFormValues | null;
 }
 
 interface BakeryStore extends UIState {
@@ -29,6 +31,7 @@ interface BakeryStore extends UIState {
 
   openCreateForm: () => void;
   openEditForm: (orderId: string) => void;
+  openFormWithPrefill: (values: OrderFormValues) => void;
   closeForm: () => void;
   openDetail: (orderId: string) => void;
   closeDetail: () => void;
@@ -48,6 +51,7 @@ export const useBakeryStore = create<BakeryStore>((set) => ({
   detailOrderId: null,
   isFormOpen: false,
   isDetailOpen: false,
+  prefill: null,
 
   setSearch: (search) =>
     set((state) => ({ filters: { ...state.filters, search } })),
@@ -61,17 +65,37 @@ export const useBakeryStore = create<BakeryStore>((set) => ({
   setDeliveryDateFilter: (deliveryDate) =>
     set((state) => ({ filters: { ...state.filters, deliveryDate } })),
 
-  setSort: (sort) => set((state) => ({ filters: { ...state.filters, sort } })),
+  setSort: (sort) =>
+    set((state) => ({ filters: { ...state.filters, sort } })),
 
   resetFilters: () => set({ filters: { ...DEFAULT_FILTERS } }),
 
   openCreateForm: () =>
-    set({ isFormOpen: true, editingOrderId: null, isDetailOpen: false }),
+    set({
+      isFormOpen: true,
+      editingOrderId: null,
+      isDetailOpen: false,
+      prefill: null,
+    }),
 
   openEditForm: (orderId) =>
-    set({ isFormOpen: true, editingOrderId: orderId, isDetailOpen: false }),
+    set({
+      isFormOpen: true,
+      editingOrderId: orderId,
+      isDetailOpen: false,
+      prefill: null,
+    }),
 
-  closeForm: () => set({ isFormOpen: false, editingOrderId: null }),
+  openFormWithPrefill: (values) =>
+    set({
+      isFormOpen: true,
+      editingOrderId: null,
+      isDetailOpen: false,
+      prefill: values,
+    }),
+
+  closeForm: () =>
+    set({ isFormOpen: false, editingOrderId: null, prefill: null }),
 
   openDetail: (orderId) =>
     set({ isDetailOpen: true, detailOrderId: orderId }),

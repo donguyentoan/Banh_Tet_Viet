@@ -41,6 +41,8 @@ const EMPTY_PRODUCTS: Product[] = [];
 export interface OrderFormProps {
   /** Đơn hàng đang sửa (null = tạo mới) */
   order?: Order | null;
+  /** Giá trị điền sẵn (VD: từ Ô Ghi Nhanh nhanh) - chỉ dùng khi tạo mới */
+  prefill?: OrderFormValues | null;
   /** Bấm "Lưu đơn hàng" */
   onSubmit: (values: OrderFormValues) => void;
   /** Đang gửi API */
@@ -61,6 +63,7 @@ export interface OrderFormProps {
 
 export function OrderForm({
   order = null,
+  prefill = null,
   onSubmit,
   isPending = false,
   submitLabel = "Lưu Đơn Hàng",
@@ -112,6 +115,22 @@ export function OrderForm({
         notes: order.notes ?? "",
         quantities: { ...order.items },
       });
+    } else if (prefill) {
+      // Điền sẵn từ Ô Ghi Nhanh nhanh
+      reset({
+        customerName: prefill.customerName,
+        phone: prefill.phone ?? "",
+        address: prefill.address ?? "",
+        deliveryDate: prefill.deliveryDate || DEFAULT_DELIVERY_DATE,
+        deliveryTime: prefill.deliveryTime || DEFAULT_DELIVERY_TIME,
+        status: prefill.status ?? "Mới đặt",
+        deposit: prefill.deposit ?? 0,
+        notes: prefill.notes ?? "",
+        quantities: {
+          ...Object.fromEntries(productIds.map((id) => [id, 0])),
+          ...prefill.quantities,
+        },
+      });
     } else {
       reset({
         customerName: "",
@@ -126,7 +145,7 @@ export function OrderForm({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [order, reset, productIdsKey, resetKey]);
+  }, [order, prefill, reset, productIdsKey, resetKey]);
 
   // Đồng bộ số lượng khi danh mục sản phẩm thay đổi (thêm/xoá loại bánh).
   // Chỉ setValue khi thực sự khác để tránh vòng lặp render.
@@ -174,7 +193,7 @@ export function OrderForm({
         className={className ?? "space-y-6"}
         noValidate
       >
-        <section className="space-y-4 rounded-2xl border border-amber-200 bg-gradient-to-b from-amber-50/60 to-white p-5">
+        <section className="space-y-4 rounded-2xl border border-amber-200 bg-gradient-to-b from-amber-50/60 to-white p-4 sm:p-5">
           <h4 className="flex items-center gap-2.5 text-sm font-bold uppercase tracking-wider text-red-800">
             <span className="flex size-6 items-center justify-center rounded-full bg-red-700 text-xs font-black text-white">
               1
@@ -219,7 +238,7 @@ export function OrderForm({
               </Label>
               <Input
                 id="address"
-                placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."
+                placeholder="Số nhà, đường, phường/xã..."
                 {...register("address")}
               />
               {formState.errors.address && (
@@ -231,14 +250,14 @@ export function OrderForm({
           </div>
         </section>
 
-        <section className="space-y-3 rounded-2xl border border-emerald-200 bg-white p-5">
+        <section className="space-y-3 rounded-2xl border border-emerald-200 bg-white p-4 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h4 className="flex items-center gap-2.5 text-sm font-bold uppercase tracking-wider text-emerald-800">
               <span className="flex size-6 items-center justify-center rounded-full bg-emerald-700 text-xs font-black text-white">
                 2
               </span>
               Chọn Loại Bánh &amp; Số Lượng
-              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">
+              <span className="shrink-0 whitespace-nowrap rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-bold text-emerald-800">
                 {products.length} loại
               </span>
             </h4>
@@ -284,7 +303,7 @@ export function OrderForm({
                     type="button"
                     variant="secondary"
                     size="icon"
-                    className="size-7"
+                    className="size-10 sm:size-7"
                     onClick={() => adjustQty(product.id, -1)}
                   >
                     <Minus className="size-3" />
@@ -294,7 +313,7 @@ export function OrderForm({
                     type="number"
                     min={0}
                     aria-label={`Số lượng ${product.name}`}
-                    className="w-12 py-1 text-center text-sm font-bold"
+                    className="w-14 py-1 text-center text-sm font-bold sm:w-12"
                     {...register(`quantities.${product.id}`, {
                       setValueAs: (value) => {
                         const num = Number(value);
@@ -307,7 +326,7 @@ export function OrderForm({
                     type="button"
                     variant="secondary"
                     size="icon"
-                    className="size-7 bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+                    className="size-10 bg-emerald-100 text-emerald-800 hover:bg-emerald-200 sm:size-7"
                     onClick={() => adjustQty(product.id, 1)}
                   >
                     <Plus className="size-3" />
@@ -333,7 +352,7 @@ export function OrderForm({
           )}
         </section>
 
-        <section className="rounded-2xl border border-gray-200 bg-white p-5">
+        <section className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5">
           <h4 className="mb-4 flex items-center gap-2.5 text-sm font-bold uppercase tracking-wider text-gray-700">
             <span className="flex size-6 items-center justify-center rounded-full bg-gray-700 text-xs font-black text-white">
               3
@@ -367,7 +386,7 @@ export function OrderForm({
                         shouldValidate: true,
                       })
                     }
-                    className="rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 transition hover:border-red-300 hover:bg-amber-100"
+                    className="min-h-8 rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-800 transition hover:border-red-300 hover:bg-amber-100"
                   >
                     {date.short}
                   </button>
@@ -406,7 +425,7 @@ export function OrderForm({
                         shouldValidate: true,
                       })
                     }
-                    className="rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 transition hover:border-red-300 hover:bg-amber-100"
+                    className="min-h-8 rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-800 transition hover:border-red-300 hover:bg-amber-100"
                   >
                     {time.split(" (")[0]}
                   </button>
@@ -442,7 +461,7 @@ export function OrderForm({
           </div>
         </section>
 
-        <section className="rounded-2xl border border-red-200 bg-gradient-to-r from-red-50 to-red-50/50 p-5">
+        <section className="rounded-2xl border border-red-200 bg-gradient-to-r from-red-50 to-red-50/50 p-4 sm:p-5">
           <h4 className="mb-4 flex items-center gap-2.5 text-sm font-bold uppercase tracking-wider text-red-800">
             <span className="flex size-6 items-center justify-center rounded-full bg-red-700 text-xs font-black text-white">
               4
@@ -450,17 +469,17 @@ export function OrderForm({
             Thanh Toán &amp; Ghi Chú
           </h4>
 
-          <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-red-200 bg-white p-4 md:flex-row">
-            <div>
-              <span className="block text-xs text-gray-600">
+          <div className="flex flex-col gap-3 rounded-xl border border-red-200 bg-white p-3 sm:p-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex min-w-0 items-center justify-between gap-2 md:block">
+              <span className="text-xs text-gray-600">
                 Tổng giá trị đơn bánh:
               </span>
-              <span className="text-3xl font-black tracking-tight text-red-700">
+              <span className="whitespace-nowrap text-2xl font-black tracking-tight text-red-700 sm:text-3xl md:block">
                 {formatMoney(total)}
               </span>
             </div>
 
-            <div className="flex w-full items-center gap-4 md:w-auto">
+            <div className="grid w-full min-w-0 grid-cols-2 items-end gap-2 sm:gap-4 md:w-auto">
               <div>
                 <Label
                   htmlFor="deposit"
@@ -473,13 +492,13 @@ export function OrderForm({
                   type="number"
                   min={0}
                   step={10000}
-                  className="w-40 font-bold text-amber-700"
+                  className="w-full font-bold text-amber-700 sm:w-40"
                   {...register("deposit", { valueAsNumber: true })}
                 />
               </div>
-              <div className="rounded-lg bg-gray-50 px-3 py-2">
-                <span className="block text-xs text-gray-600">Còn lại cần thu:</span>
-                <span className="text-lg font-bold text-gray-900">
+              <div className="min-w-0 rounded-lg bg-gray-50 px-2 py-2 sm:px-3">
+                <span className="block text-[11px] leading-tight text-gray-600 sm:text-xs">Còn lại cần thu:</span>
+                <span className="whitespace-nowrap text-base font-bold text-gray-900 sm:text-lg">
                   {formatMoney(remaining)}
                 </span>
               </div>

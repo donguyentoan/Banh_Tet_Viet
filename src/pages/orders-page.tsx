@@ -7,6 +7,7 @@ import { OrderDetailDialog } from "@/components/orders/order-detail-dialog";
 import { OrderFormDialog } from "@/components/orders/order-form-dialog";
 import { OrderGrid } from "@/components/orders/order-grid";
 import { OrderToolbar } from "@/components/orders/order-toolbar";
+import { QuickParseBox } from "@/components/orders/quick-parse-box";
 import {
   useCreateOrder,
   useDeleteOrder,
@@ -15,40 +16,49 @@ import {
   useUpdateOrder,
 } from "@/hooks/use-orders";
 import { applyFilters } from "@/lib/filter";
-import { calculateTotal, type OrderFormValues, type OrderStatus } from "@/lib/types";
+import { calculateTotal, type OrderFormValues, type OrderStatus, type Order, type Product } from "@/lib/types";
 import { useBakeryStore } from "@/stores/bakery-store";
 
+/** Mảng rỗng ổn định - tránh tạo reference mới mỗi render */
+const EMPTY_ORDERS: Order[] = [];
+const EMPTY_PRODUCTS: Product[] = [];
+
 export function OrdersPage() {
-  const { data: orders = [], isLoading, error } = useOrders();
-  const { data: products = [] } = useProducts();
+  const { data: orders, isLoading, error } = useOrders();
+  const { data: products } = useProducts();
+
+  const ordersData = orders ?? EMPTY_ORDERS;
+  const productsData = products ?? EMPTY_PRODUCTS;
 
   const filters = useBakeryStore((s) => s.filters);
   const isFormOpen = useBakeryStore((s) => s.isFormOpen);
   const isDetailOpen = useBakeryStore((s) => s.isDetailOpen);
   const editingOrderId = useBakeryStore((s) => s.editingOrderId);
   const detailOrderId = useBakeryStore((s) => s.detailOrderId);
+  const prefill = useBakeryStore((s) => s.prefill);
   const openEditForm = useBakeryStore((s) => s.openEditForm);
   const closeForm = useBakeryStore((s) => s.closeForm);
   const openDetail = useBakeryStore((s) => s.openDetail);
   const closeDetail = useBakeryStore((s) => s.closeDetail);
+  const openFormWithPrefill = useBakeryStore((s) => s.openFormWithPrefill);
 
   const createOrder = useCreateOrder();
   const updateOrder = useUpdateOrder();
   const deleteOrder = useDeleteOrder();
 
   const editingOrder = useMemo(
-    () => orders.find((order) => order.id === editingOrderId) ?? null,
-    [orders, editingOrderId],
+    () => ordersData.find((order) => order.id === editingOrderId) ?? null,
+    [ordersData, editingOrderId],
   );
 
   const detailOrder = useMemo(
-    () => orders.find((order) => order.id === detailOrderId) ?? null,
-    [orders, detailOrderId],
+    () => ordersData.find((order) => order.id === detailOrderId) ?? null,
+    [ordersData, detailOrderId],
   );
 
   const visibleCount = useMemo(
-    () => applyFilters(orders, filters, products).length,
-    [orders, filters, products],
+    () => applyFilters(ordersData, filters, productsData).length,
+    [ordersData, filters, productsData],
   );
 
   function handleSubmit(values: OrderFormValues) {
@@ -61,7 +71,7 @@ export function OrdersPage() {
       items: Object.fromEntries(
         Object.entries(values.quantities).filter(([, qty]) => qty > 0),
       ),
-      totalAmount: calculateTotal(values.quantities, products),
+      totalAmount: calculateTotal(values.quantities, productsData),
       deposit: Number(values.deposit) || 0,
       status: values.status,
       notes: values.notes ?? "",
@@ -110,7 +120,16 @@ export function OrdersPage() {
 
   return (
     <>
-      <DashboardStats orders={orders} products={products} />
+      <DashboardStats orders={ordersData} products={productsData} />
+
+      <div className="mb-6">
+        <QuickParseBox
+          onParsed={(_parsed, values) => {
+            openFormWithPrefill(values);
+            toast.success("Đã điền sẵn thông tin - kiểm tra rồi bấm Lưu Đơn Hàng");
+          }}
+        />
+      </div>
 
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-gradient-to-r from-red-50/60 via-white to-amber-50/40 px-5 py-4">
@@ -120,7 +139,7 @@ export function OrdersPage() {
               Danh Sách Đơn Hàng
             </h2>
             <p className="text-xs text-gray-500">
-              Quản lý đơn đặt bánh chưng &amp; bánh tét dịp Tết Ất Tỵ 2026
+              Quản lý đơn đặt bánh chưng &amp; bánh tét dịp Tết Đinh Mùi 2027
             </p>
           </div>
           <Badge className="border-red-200 bg-red-50 text-xs font-bold text-red-700">
@@ -141,8 +160,8 @@ export function OrdersPage() {
             </p>
           ) : (
             <OrderGrid
-              orders={orders}
-              products={products}
+              orders={ordersData}
+              products={productsData}
               onView={openDetail}
               onEdit={openEditForm}
               onDelete={handleDelete}
@@ -155,19 +174,15 @@ export function OrdersPage() {
           <div>
             Hiển thị{" "}
             <span className="font-bold text-red-700">{visibleCount}</span> đơn hàng
-            dạng Thẻ
           </div>
-          <div className="flex items-center space-x-1">
-            <span className="italic text-gray-400">
-              Quản lý trực quan Card View - Tết Ất Tỵ 2026
-            </span>
-          </div>
+          
         </div>
       </div>
 
       <OrderFormDialog
         open={isFormOpen}
         order={editingOrder}
+        prefill={prefill}
         onOpenChange={(open) => {
           if (!open) closeForm();
         }}
@@ -178,7 +193,7 @@ export function OrdersPage() {
       <OrderDetailDialog
         open={isDetailOpen}
         order={detailOrder}
-        products={products}
+        products={productsData}
         onOpenChange={(open) => {
           if (!open) closeDetail();
         }}
