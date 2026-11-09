@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/products.ts": {
+      "includeFiles": "data/products.json"
+    }
+  }
+}
