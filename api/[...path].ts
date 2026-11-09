@@ -8,6 +8,7 @@ interface ApiRequest extends AsyncIterable<Buffer | string> {
   url?: string;
   headers: Record<string, string | string[] | undefined>;
   query?: { path?: string | string[] };
+  body?: unknown;
 }
 
 interface ApiResponse {
@@ -59,6 +60,17 @@ function getHeader(req: ApiRequest, name: string): string {
 }
 
 async function readBody(req: ApiRequest): Promise<Record<string, any>> {
+  // Vercel parses JSON request bodies onto req.body before invoking the
+  // function. Prefer that value there; local Vite requests still use the raw
+  // request stream below.
+  if (req.body !== undefined && req.body !== null) {
+    const value = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      throw new Error("Nội dung gửi lên không hợp lệ");
+    }
+    return value as Record<string, any>;
+  }
+
   const chunks: Buffer[] = [];
   let length = 0;
   for await (const chunk of req) {
