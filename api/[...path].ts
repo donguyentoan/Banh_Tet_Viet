@@ -79,7 +79,7 @@ async function readCollection(collection: CollectionKey): Promise<CollectionData
 async function writeCollection(
   collection: CollectionKey,
   items: Record<string, any>[],
-  etag?: string,
+  _etag?: string, // Thêm _ để ngầm hiểu không dùng đến etag này nữa
 ) {
   if (!getBlobConfiguration()) {
     throw new Error("Blob chưa được kết nối với project Vercel.");
@@ -87,10 +87,10 @@ async function writeCollection(
   await put(`collections/${collection}.json`, JSON.stringify(items, null, 2), {
     access: BLOB_ACCESS,
     addRandomSuffix: false,
-    allowOverwrite: true,
+    allowOverwrite: true, // Cho phép ghi đè trực tiếp
     contentType: "application/json; charset=utf-8",
     cacheControlMaxAge: 60,
-    ...(etag ? { ifMatch: etag } : {}),
+    // Bỏ dòng ifMatch: etag ở đây
   });
 }
 
