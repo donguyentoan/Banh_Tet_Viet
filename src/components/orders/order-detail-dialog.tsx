@@ -1,4 +1,4 @@
-import { Printer } from "lucide-react";
+import { Printer, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -195,6 +195,7 @@ export function OrderDetailDialog({
 
         <DialogFooter className="no-print -mx-3 -mb-3 mt-4 border-t border-gray-200 p-3 pt-4 sm:-mx-4 sm:-mb-4 sm:mt-6 sm:p-4 sm:pt-4">
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
+            <X className="size-4" />
             Đóng
           </Button>
           <Button

@@ -73,9 +73,9 @@ export function MarketFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={(next) => (next ? undefined : handleClose())}>
-      <DialogContent className="max-h-[92vh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto border-amber-300 sm:max-w-lg">
-        <DialogHeader className="bg-gradient-to-r from-red-800 via-red-700 to-amber-700 text-white">
-          <DialogTitle className="flex items-center gap-2 text-lg font-bold">
+      <DialogContent className="max-h-[92vh] w-[calc(100%-1.5rem)] max-w-md overflow-y-auto overflow-x-hidden rounded-2xl border-red-200 p-0 shadow-xl sm:max-w-lg">
+        <DialogHeader className="rounded-t-2xl bg-gradient-to-r from-red-700 to-red-800 px-5 py-4 text-white">
+          <DialogTitle className="flex items-center gap-2 pr-8 text-base font-bold sm:text-lg">
             <Plus className="size-5 text-amber-300" />
             {market ? "Sửa Thông Tin Mối Chợ" : "Thêm Mối Chợ Mới"}
           </DialogTitle>
@@ -115,7 +115,7 @@ export function MarketFormDialog({
               onError: (error) => toast.error(error.message),
             });
           })}
-          className="space-y-4"
+          className="space-y-4 px-5 py-5"
           noValidate
         >
           <div>
@@ -179,7 +179,7 @@ export function MarketFormDialog({
             />
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="-mx-5 -mb-5 mt-6 border-t border-gray-100 bg-gray-50 px-5 py-4">
             <Button type="button" variant="secondary" onClick={handleClose}>
               Hủy Bỏ
             </Button>

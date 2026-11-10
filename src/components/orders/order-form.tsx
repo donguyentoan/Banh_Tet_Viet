@@ -265,16 +265,6 @@ export function OrderForm({
               <span className="hidden text-xs text-gray-500 sm:inline">
                 Giá đã bao gồm lá bọc &amp; luộc chuẩn
               </span>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setIsAddProductOpen(true)}
-                className="gap-1.5 border-emerald-300 bg-emerald-50 text-xs font-bold text-emerald-700 hover:bg-emerald-100"
-              >
-                <Plus className="size-3.5" />
-                Thêm loại bánh
-              </Button>
             </div>
           </div>
 
@@ -282,15 +272,21 @@ export function OrderForm({
             {products.map((product) => (
               <div
                 key={product.id}
-                className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition hover:border-emerald-500 sm:flex-row sm:items-center sm:justify-between"
+                className={`flex min-h-[150px] flex-col gap-3 rounded-2xl border bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-400 hover:shadow-md sm:min-h-[220px] sm:p-4 ${
+                  Number(quantities?.[product.id] ?? 0) > 0
+                    ? "border-emerald-400 ring-1 ring-emerald-100"
+                    : "border-gray-200"
+                }`}
               >
-                <div className="flex min-w-0 items-start gap-2.5">
-                  <span className="shrink-0 text-2xl">{product.icon}</span>
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold leading-snug text-gray-800">
+                <div className="flex min-w-0 flex-1 items-start gap-3">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-2xl">
+                    {product.icon}
+                  </span>
+                  <div className="min-w-0 pt-0.5">
+                    <p className="text-sm font-bold leading-snug text-gray-800">
                       {product.name}
                     </p>
-                    <p className="text-xs font-semibold text-emerald-700">
+                    <p className="mt-1 text-xs font-semibold leading-relaxed text-emerald-700">
                       {formatMoney(product.price)} / bánh{" "}
                       <span className="font-normal text-gray-400">
                         ({product.weight})
@@ -298,22 +294,22 @@ export function OrderForm({
                     </p>
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center space-x-2">
+                <div className="flex shrink-0 items-center justify-end gap-2 border-t border-gray-100 pt-3">
                   <Button
                     type="button"
                     variant="secondary"
                     size="icon"
-                    className="size-10 sm:size-7"
+                    className="size-9 rounded-lg"
                     onClick={() => adjustQty(product.id, -1)}
                   >
-                    <Minus className="size-3" />
+                    <Minus className="size-3.5" />
                   </Button>
                   <Input
                     id={`qty-${product.id}`}
                     type="number"
                     min={0}
                     aria-label={`Số lượng ${product.name}`}
-                    className="w-14 py-1 text-center text-sm font-bold sm:w-12"
+                    className="h-9 w-14 rounded-lg py-1 text-center text-sm font-bold"
                     {...register(`quantities.${product.id}`, {
                       setValueAs: (value) => {
                         const num = Number(value);
@@ -326,10 +322,10 @@ export function OrderForm({
                     type="button"
                     variant="secondary"
                     size="icon"
-                    className="size-10 bg-emerald-100 text-emerald-800 hover:bg-emerald-200 sm:size-7"
+                    className="size-9 rounded-lg bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
                     onClick={() => adjustQty(product.id, 1)}
                   >
-                    <Plus className="size-3" />
+                    <Plus className="size-3.5" />
                   </Button>
                 </div>
               </div>
@@ -339,7 +335,7 @@ export function OrderForm({
             <button
               type="button"
               onClick={() => setIsAddProductOpen(true)}
-              className="flex min-h-[88px] flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/50 p-3 text-amber-700 transition hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-700"
+              className="flex min-h-[150px] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50/50 p-3 text-amber-700 transition hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-700 sm:min-h-[220px]"
             >
               <Plus className="size-6" />
               <span className="text-xs font-bold">Thêm loại bánh</span>

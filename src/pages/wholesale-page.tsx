@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Printer, Store } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Printer, Store, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -68,6 +68,7 @@ export function WholesalePage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingMarket, setEditingMarket] = useState<Market | null>(null);
   const [selectedMarketId, setSelectedMarketId] = useState<string | null>(null);
+  const [marketListOpen, setMarketListOpen] = useState(false);
   /** Các phiếu sẽ in (marketId -> quantities) */
   const [printTargets, setPrintTargets] = useState<
     { market: Market; quantities: Record<string, number> }[]
@@ -75,15 +76,14 @@ export function WholesalePage() {
 
   // Nạp lịch bỏ bánh đã lưu của ngày đang chọn vào bảng nhập
   useEffect(() => {
-    const saved = wholesaleData.find((entry) => entry.date === selectedDate);
-    if (!saved) {
-      setQuantities({});
-      return;
-    }
-
     const next: Record<string, Record<string, number>> = {};
     for (const market of marketsData) {
-      next[market.id] = { ...saved.items };
+      // Mỗi tiểu thương có một phiếu riêng. Không lấy phiếu đầu tiên
+      // của ngày rồi gán lại cho tất cả các tiểu thương.
+      const saved = wholesaleData.find(
+        (entry) => entry.date === selectedDate && entry.marketId === market.id,
+      );
+      next[market.id] = saved ? { ...saved.items } : {};
     }
     setQuantities(next);
   }, [selectedDate, wholesaleData, marketsData]);
@@ -269,7 +269,7 @@ export function WholesalePage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
         {/* Cột trái: danh sách mối chợ */}
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between gap-2 border-b border-gray-200 bg-gradient-to-r from-red-50 to-white px-4 py-3">
+          <div className="flex cursor-pointer items-center justify-between gap-2 border-b border-gray-200 bg-gradient-to-r from-red-50 to-white px-4 py-3" onClick={() => setMarketListOpen((open) => !open)}>
             <div>
               <h2 className="flex items-center gap-2 text-sm font-extrabold text-gray-900">
                 <Store className="size-4 text-red-700" />
@@ -281,7 +281,8 @@ export function WholesalePage() {
             </div>
             <Button
               size="sm"
-              onClick={() => {
+              onClick={(event) => {
+                event.stopPropagation();
                 setEditingMarket(null);
                 setIsFormOpen(true);
               }}
@@ -290,8 +291,15 @@ export function WholesalePage() {
               <Plus className="size-3.5" />
               Thêm Mối Chợ
             </Button>
+            {marketListOpen ? (
+              <ChevronUp className="size-4 shrink-0 text-red-700" />
+            ) : (
+              <ChevronDown className="size-4 shrink-0 text-red-700" />
+            )}
           </div>
 
+          {marketListOpen && (
+          <>
           <MarketList
             markets={marketsData}
             selectedMarketId={selectedMarketId}
@@ -314,6 +322,8 @@ export function WholesalePage() {
                 Xem tất cả mối chợ
               </Button>
             </div>
+          )}
+          </>
           )}
         </div>
 
@@ -382,7 +392,16 @@ export function WholesalePage() {
 
       {/* Khu vực in phiếu giao sỉ (chỉ hiện khi bấm In) */}
       {printTargets.length > 0 && (
-        <div className="fixed inset-0 z-50 overflow-auto bg-white p-6">
+        <div className="fixed inset-0 z-50 overflow-auto bg-black/20 p-3 sm:p-6">
+          <div className="relative mx-auto min-h-full w-full max-w-3xl rounded-2xl bg-white p-3 shadow-2xl sm:p-6">
+            <button
+              type="button"
+              aria-label="Đóng bản xem trước"
+              onClick={() => setPrintTargets([])}
+              className="no-print absolute right-3 top-3 z-10 flex size-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm transition hover:bg-gray-100 hover:text-gray-900"
+            >
+              <X className="size-4" />
+            </button>
           <div id="print-area" className="space-y-6">
             {printTargets.map((target) => (
               <WholesaleReceipt
@@ -394,12 +413,13 @@ export function WholesalePage() {
               />
             ))}
           </div>
-          <div className="no-print fixed bottom-4 right-4 flex gap-2">
+          <div className="no-print mt-4 flex justify-end gap-2 border-t border-gray-200 pt-3">
             <Button
               variant="secondary"
               onClick={() => setPrintTargets([])}
               className="bg-white"
             >
+              <X className="size-4" />
               Đóng
             </Button>
             <Button
@@ -410,8 +430,10 @@ export function WholesalePage() {
               In Ngay
             </Button>
           </div>
+          </div>
         </div>
       )}
     </>
   );
 }
+

@@ -29,7 +29,7 @@ export function OrderFormDialog({
 }: OrderFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] w-[calc(100%-2rem)] max-w-6xl overflow-y-auto border-amber-300 p-0 sm:max-w-6xl">
+      <DialogContent className="max-h-[92vh] w-[calc(100%-2rem)] max-w-6xl overflow-y-auto border-red-200 p-0 sm:max-w-6xl">
         <DialogHeader className="sticky top-0 z-10 rounded-t-xl bg-gradient-to-r from-red-700 to-red-800 px-6 py-4 text-white">
           <DialogTitle className="flex items-center gap-2 text-lg font-bold">
             {order ? (
