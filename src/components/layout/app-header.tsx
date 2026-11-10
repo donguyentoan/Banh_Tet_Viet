@@ -35,8 +35,20 @@ export function AppHeader() {
         }
         return (await response.json()) as { authenticated?: boolean };
       })
-      .then((result) => setIsAdmin(Boolean(result.authenticated)))
-      .catch(() => setIsAdmin(false));
+      .then((result) => {
+        const authenticated = Boolean(result.authenticated);
+        setIsAdmin(authenticated);
+
+        // Mở sẵn hộp đăng nhập khi người dùng chưa có phiên quản trị.
+        if (!authenticated) {
+          setLoginOpen(true);
+        }
+      })
+      .catch(() => {
+        setIsAdmin(false);
+        // Nếu không kiểm tra được phiên, vẫn yêu cầu đăng nhập ngay từ đầu.
+        setLoginOpen(true);
+      });
   }, []);
 
   async function handleAdminLogin(event: React.FormEvent<HTMLFormElement>) {
@@ -90,8 +102,8 @@ export function AppHeader() {
     <header className="no-print sticky top-0 z-30 border-b border-amber-200 bg-white shadow-sm">
       <div className="mx-auto flex w-full flex-wrap items-center justify-between gap-2 px-3 py-2.5 sm:gap-4 sm:px-6 sm:py-3.5 lg:px-8">
         <div className="flex items-center space-x-3">
-          <div className="flex size-10 items-center justify-center rounded-xl border-2 border-amber-400 bg-gradient-to-tr from-emerald-700 to-emerald-500 text-xl sm:size-12 sm:text-2xl text-white shadow-md">
-            🍃
+          <div className="size-12 shrink-0 overflow-hidden rounded-xl border-2 border-amber-300 bg-red-700 shadow-md ring-2 ring-amber-100 sm:size-14">
+            <img src="/de.jpg" alt="Logo" className="h-full w-full object-cover" />
           </div>
           <div>
             <h1 className="flex items-center gap-2 text-sm font-extrabold leading-tight text-red-700 sm:text-xl md:text-2xl">
