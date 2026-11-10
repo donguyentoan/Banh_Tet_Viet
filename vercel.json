@@ -3,5 +3,8 @@
     "api/[...path].ts": {
       "includeFiles": "data/*.json"
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/[...path]" }
+  ]
 }
