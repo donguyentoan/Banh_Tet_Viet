@@ -123,6 +123,15 @@ function collectionPath(req: CollectionRequest): string[] {
 }
 
 export default async function handler(req: CollectionRequest, res: ApiResponse) {
+  // Thêm Header CORS và xử lý request kiểm tra OPTIONS từ trình duyệt
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -149,9 +158,11 @@ export default async function handler(req: CollectionRequest, res: ApiResponse) 
 
   try {
     const { items, etag } = await readCollection(collection);
+    
     if (method === "GET") {
       if (!id) return json(res, 200, items);
-      const item = items.find((entry) => entry.id === id);
+      // Ép kiểu sang string để so sánh an toàn hơn giữa id truyền lên và item.id
+      const item = items.find((entry) => String(entry.id).trim() === String(id).trim());
       return item
         ? json(res, 200, item)
         : json(res, 404, { message: `Không tìm thấy ${collection} #${id}` });
@@ -194,14 +205,20 @@ export default async function handler(req: CollectionRequest, res: ApiResponse) 
     }
 
     if (id) {
-      const index = items.findIndex((item) => item.id === id);
-      if (index === -1) return json(res, 404, { message: `Không tìm thấy ${collection} #${id}` });
+      // Sử dụng so sánh chuỗi tương đương (trim và đồng bộ dạng) để không bị lệch ID
+      const index = items.findIndex((item) => String(item.id).trim() === String(id).trim());
+      
+      if (index === -1) {
+        return json(res, 404, { message: `Không tìm thấy ${collection} #${id}` });
+      }
+
       if (method === "PUT" || method === "PATCH") {
         const body = await readBody(req);
-        items[index] = { ...items[index], ...body, id };
+        items[index] = { ...items[index], ...body, id: items[index].id };
         await writeCollection(collection, items, etag);
         return json(res, 200, items[index]);
       }
+
       if (method === "DELETE") {
         const [removed] = items.splice(index, 1);
         await writeCollection(collection, items, etag);
