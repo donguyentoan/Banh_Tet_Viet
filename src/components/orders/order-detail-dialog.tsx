@@ -102,7 +102,7 @@ export function OrderDetailDialog({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <p className="min-w-0 text-xs font-semibold leading-snug text-gray-800">
-                        {product.icon} {product.name}
+                      <img src={product.icon} alt={product.name} className="mr-2 inline-block size-5" />  {product.name}
                       </p>
                       <span className="shrink-0 rounded-full bg-red-50 px-2 py-0.5 text-xs font-bold text-red-700">
                         × {qty}

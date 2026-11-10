@@ -280,7 +280,7 @@ export function OrderForm({
               >
                 <div className="flex min-w-0 flex-1 items-start gap-3">
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-2xl">
-                    {product.icon}
+                     <img src={product.icon} alt="" className="size-8" />
                   </span>
                   <div className="min-w-0 pt-0.5">
                     <p className="text-sm font-bold leading-snug text-gray-800">

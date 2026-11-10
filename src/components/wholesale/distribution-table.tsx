@@ -130,7 +130,7 @@ export function DistributionTable({
                   <div key={product.id} className="rounded-lg border border-gray-200 p-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 text-xs font-semibold leading-snug text-gray-800">
-                        {product.icon} {product.name}
+                        <img src={product.icon} alt={product.name} className="mr-2 inline-block size-5" /> {product.name}
                         {product.code && <span className="ml-1 text-[10px] text-amber-700">{product.code}</span>}
                       </div>
                       <span className="shrink-0 text-xs font-semibold text-red-700">{formatMoney(unitPrice)}</span>

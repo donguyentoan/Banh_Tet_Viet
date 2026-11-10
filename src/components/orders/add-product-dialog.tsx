@@ -90,7 +90,7 @@ export function AddProductDialog({
                 name: values.name.trim(),
                 price: Number(values.price) || 0,
                 category: values.category,
-                icon: values.icon.trim() || "🍃",
+                icon: (values.category === "CHUNG" ? "/banh-chung.png" : "/banh-tet.png"),
                 weight: values.weight.trim() || "1.0 kg",
               },
               {
@@ -154,23 +154,6 @@ export function AddProductDialog({
               {formState.errors.weight && (
                 <p className="mt-1 text-xs text-red-600">
                   {String(formState.errors.weight.message)}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="product-icon" className="mb-1 text-xs font-semibold">
-                Biểu Tượng
-              </Label>
-              <Input
-                id="product-icon"
-                placeholder="🍃"
-                className="text-center text-lg"
-                {...register("icon")}
-              />
-              {formState.errors.icon && (
-                <p className="mt-1 text-xs text-red-600">
-                  {String(formState.errors.icon.message)}
                 </p>
               )}
             </div>

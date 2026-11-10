@@ -6,7 +6,7 @@
     "wholesalePrice": 120000,
     "category": "CHUNG",
     "code": "CM",
-    "icon": "🍖",
+    "icon": "banh-chung.png",
     "weight": "1.2 kg"
   },
   {
@@ -16,7 +16,7 @@
     "wholesalePrice": 105000,
     "category": "CHUNG",
     "code": "CC",
-    "icon": "🥬",
+    "icon": "banh-chung.png",
     "weight": "1.0 kg"
   },
   {
@@ -26,7 +26,7 @@
     "wholesalePrice": 145000,
     "category": "CHUNG",
     "code": "CĐB",
-    "icon": "✨",
+    "icon": "banh-chung.png",
     "weight": "1.4 kg"
   },
   {
@@ -36,7 +36,7 @@
     "wholesalePrice": 128000,
     "category": "TET",
     "code": "TT",
-    "icon": "🥓",
+    "icon": "banh-tet.png",
     "weight": "1.2 kg"
   },
   {
@@ -46,7 +46,7 @@
     "wholesalePrice": 88000,
     "category": "TET",
     "code": "TC",
-    "icon": "🍌",
+    "icon": "banh-tet.png",
     "weight": "1.0 kg"
   },
   {
@@ -56,7 +56,7 @@
     "wholesalePrice": 140000,
     "category": "TET",
     "code": "TMC",
-    "icon": "🍚",
+    "icon": "banh-tet.png",
     "weight": "1.2 kg"
   }
 ]

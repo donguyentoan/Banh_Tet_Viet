@@ -17,8 +17,8 @@ export const STATUS_BADGE_CLASSES: Record<OrderStatus, string> = {
 };
 
 export const PRODUCT_CATEGORIES: Record<ProductCategory, string> = {
-  CHUNG: "🍃 Bánh Chưng",
-  TET: "🎋 Bánh Tét",
+  CHUNG: "Bánh Chưng",
+  TET: "Bánh Tét",
 };
 
 /** Danh mục 6 loại bánh chuẩn, dùng cho ô ghi nhanh theo cú pháp tin nhắn */

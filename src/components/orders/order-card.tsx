@@ -97,7 +97,7 @@ export function OrderCard({
               #{order.id}
             </button>
             <Badge className="border-emerald-200 bg-emerald-50 text-[11px] font-bold text-emerald-800">
-              🍃 {totalCakesInOrder} bánh
+               {totalCakesInOrder} bánh
             </Badge>
           </div>
           <p className="mt-1 truncate text-sm font-bold text-gray-900">

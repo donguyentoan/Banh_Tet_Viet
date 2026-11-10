@@ -230,7 +230,7 @@ export function AnalyticsPage() {
             <ul className="mt-1 space-y-0.5 text-xs font-medium text-red-700">
               {shortageRows.map((row) => (
                 <li key={row.productId}>
-                  • {row.icon} {row.name}: thiếu{" "}
+                  • <img src={row.icon} alt={row.name} className="mr-2 inline-block size-5" /> {row.name}: thiếu{" "}
                   <strong>{Math.abs(row.surplus)}</strong> cái (cần{" "}
                   {row.totalDemand} - có {row.availableSupply})
                 </li>
@@ -292,7 +292,9 @@ export function AnalyticsPage() {
             {balance.rows.map((row) => (
               <div key={row.productId} className={`rounded-xl border p-3 ${row.surplus < 0 ? "border-red-200 bg-red-50/50" : "border-gray-200 bg-white"}`}>
                 <div className="flex items-start justify-between gap-2">
-                  <p className="min-w-0 text-xs font-bold leading-snug text-gray-800">{row.icon} {row.name}</p>
+                  <p className="min-w-0 text-xs font-bold leading-snug text-gray-800">
+                    <img src={row.icon} alt={row.name} className="mr-2 inline-block size-5" /> {row.name}
+                  </p>
                   <span className={`shrink-0 rounded-full px-2 py-1 text-xs font-black ${row.surplus < 0 ? "bg-red-100 text-red-700" : "bg-emerald-100 text-emerald-800"}`}>
                     {row.surplus > 0 ? `+${row.surplus}` : row.surplus}
                   </span>
@@ -337,7 +339,7 @@ export function AnalyticsPage() {
                 >
                   <TableCell>
                     <span className="flex items-center gap-2">
-                      <span className="text-lg">{row.icon}</span>
+                      <img src={row.icon} alt={row.name} className="inline-block size-5" />
                       <span className="font-medium text-gray-800">
                         {row.name}
                       </span>
@@ -450,7 +452,7 @@ export function AnalyticsPage() {
                   className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2"
                 >
                   <span className="flex min-w-0 items-center gap-2">
-                    <span className="text-lg">{product.icon}</span>
+                    <img src={product.icon} alt={product.name} className="inline-block size-5" />
                     <span className="truncate text-xs font-semibold text-gray-800">
                       {product.name}
                     </span>
