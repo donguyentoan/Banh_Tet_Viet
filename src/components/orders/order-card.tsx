@@ -4,6 +4,7 @@ import {
   MapPin,
   Pencil,
   Phone,
+  PhoneCall,
   Trash2,
   User,
 } from "lucide-react";
@@ -108,12 +109,24 @@ export function OrderCard({
             {order.phone}
           </p>
         </div>
-
-        <Badge
-          className={`shrink-0 border text-[11px] font-bold ${STATUS_BADGE_CLASSES[order.status] ?? ""}`}
-        >
+        <div className="flex items-center gap-1 flex-col">
+           <Badge className={`shrink-0 border text-[11px] font-bold ${STATUS_BADGE_CLASSES[order.status] ?? ""}`}>
           {STATUS_LABELS[order.status] ?? order.status}
         </Badge>
+        {order.phone !== "" ? (
+           <Button
+            variant="ghost"
+            size="icon"
+            className="size-10 text-red-600 hover:bg-red-50 sm:size-8"
+            title="Gọi khách hàng"
+          >
+           <a href={`tel:${order.phone}`}>
+            <PhoneCall className="size-5" />
+          </a>
+          </Button>
+        ) : null}
+        </div>
+       
       </div>
 
       {/* Địa chỉ + ngày giao */}
@@ -203,6 +216,8 @@ export function OrderCard({
           >
             <Trash2 className="size-3.5" />
           </Button>
+
+         
         </div>
       </div>
     </div>
