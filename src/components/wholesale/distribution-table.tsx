@@ -1,4 +1,4 @@
-import { Minus, Plus, Printer, Save, Trash2 } from "lucide-react";
+import { Minus, PhoneCall, Plus, Printer, Save, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -69,6 +69,20 @@ export function DistributionTable({
                 <p className="truncate text-[11px] text-red-100">
                   {market.stall} · ☎ {market.phone}
                 </p>
+              </div>
+              <div> 
+                {market.phone !== "" ? (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-10 text-red-600 hover:bg-red-50 sm:size-8"
+                  title="Gọi khách hàng"
+                >
+                <a className="bg-white p-2 rounded-2xl border-1" href={`tel:${market.phone}`}>
+                  <PhoneCall className="size-5" />
+                </a>
+                </Button>
+              ) : null}
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Badge className="border-amber-300 bg-amber-400 text-[11px] font-black text-amber-950">

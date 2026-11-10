@@ -117,10 +117,10 @@ export function OrderCard({
            <Button
             variant="ghost"
             size="icon"
-            className="size-10 text-red-600 hover:bg-red-50 sm:size-8"
+            className="size-10 text-red-600 hover:bg-red-50 sm:size-8 mt-2"
             title="Gọi khách hàng"
           >
-           <a href={`tel:${order.phone}`}>
+           <a className="bg-white p-2 rounded-2xl border-1 border-[#9f0712]" href={`tel:${order.phone}`}>
             <PhoneCall className="size-5" />
           </a>
           </Button>
