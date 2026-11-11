@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-
+import basicSsl from '@vitejs/plugin-basic-ssl';
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.resolve(rootDir, "data");
 const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
@@ -230,9 +230,13 @@ function jsonApiPlugin(): Plugin {
     },
   };
 }
-
 export default defineConfig({
-  plugins: [react(), tailwindcss(), jsonApiPlugin()],
+  plugins: [
+    react(), 
+    tailwindcss(), 
+    jsonApiPlugin(),
+    basicSsl() // Bây giờ biến này đã được định nghĩa
+  ],
   resolve: {
     alias: {
       "@": path.resolve(rootDir, "src"),
@@ -240,5 +244,6 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    https: true, 
   },
 });
