@@ -140,7 +140,7 @@ export function OrderDetailDialog({
                   return (
                     <TableRow key={productId}>
                       <TableCell className="font-medium text-gray-800">
-                        {product.icon} {product.name}
+                        <img src={product.icon} alt={product.name} className="inline-block size-5" /> {product.name}
                       </TableCell>
                       <TableCell className="text-center font-bold text-red-700">
                         {qty}

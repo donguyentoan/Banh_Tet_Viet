@@ -198,7 +198,7 @@ export function DistributionTable({
                     <TableRow key={product.id}>
                       <TableCell>
                         <span className="flex items-center gap-2">
-                          <span className="text-lg">{product.icon}</span>
+                          <img src={product.icon} alt={product.name} className="inline-block size-5" />
                           <span className="font-medium text-gray-800">
                             {product.name}
                           </span>
@@ -327,7 +327,7 @@ export function WholesaleReceipt({
         {rows.map(({ product, qty }) => (
           <div key={product.id} className="rounded-lg border border-gray-200 p-3">
             <div className="flex items-start justify-between gap-2">
-              <p className="min-w-0 text-xs font-semibold leading-snug">{product.icon} {product.name}</p>
+              <p className="min-w-0 text-xs font-semibold leading-snug"><img src={product.icon} alt={product.name} className="inline-block size-5" /> {product.name}</p>
               <span className="shrink-0 rounded-full bg-red-50 px-2 py-0.5 text-xs font-bold text-red-700">× {qty}</span>
             </div>
             <div className="mt-2 flex justify-between gap-2 border-t border-gray-100 pt-2 text-xs">
@@ -352,7 +352,7 @@ export function WholesaleReceipt({
           {rows.map(({ product, qty }) => (
             <TableRow key={product.id}>
               <TableCell className="font-medium">
-                {product.icon} {product.name}
+                <img src={product.icon} alt={product.name} className="inline-block size-5" /> {product.name}
               </TableCell>
               <TableCell className="text-center font-bold text-red-700">
                 {qty}
