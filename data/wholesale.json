@@ -1,53 +1,22 @@
 [
-  {
-    "marketId": "cho_dong_khanh",
-    "date": "2027-02-03",
-    "items": {
-      "bt_chuoi": 1,
-      "bc_thit": 1,
-      "bt_cam": 1
-    },
-    "totalAmount": 348000,
-    "notes": "",
-    "id": "BH-004",
-    "createdAt": "2026-11-10T03:23:00.069Z"
-  },
-  {
-    "marketId": "cho_hoa_khang",
-    "date": "2027-02-03",
-    "items": {
-      "bc_dacbiet": 1,
-      "bc_chay": 1
-    },
-    "totalAmount": 250000,
-    "notes": "",
-    "id": "BH-003",
-    "createdAt": "2026-11-10T03:22:54.799Z"
-  },
-  {
-    "marketId": "cho_nguyen_an",
-    "date": "2027-02-03",
-    "items": {
-      "bt_cam": 1,
-      "bt_chuoi": 1,
-      "bt_thit": 1
-    },
-    "totalAmount": 356000,
-    "notes": "",
-    "id": "BH-002",
-    "createdAt": "2026-11-10T03:22:51.053Z"
-  },
-  {
-    "marketId": "cho_ben_thanh",
-    "date": "2027-02-03",
-    "items": {
-      "bc_thit": 1,
-      "bc_chay": 1,
-      "bc_dacbiet": 1
-    },
-    "totalAmount": 370000,
-    "notes": "",
-    "id": "BH-001",
-    "createdAt": "2026-11-10T03:22:45.030Z"
-  }
+  { "id": "BH-001", "marketId": "cho_ben_thanh", "date": "2027-02-03", "items": { "bc_thit": 20, "bt_thit": 15, "bc_dacbiet": 10 }, "totalAmount": 6250000, "notes": "Giao chuyến sớm", "createdAt": "2026-11-10T03:22:45.030Z" },
+  { "id": "BH-002", "marketId": "cho_nguyen_an", "date": "2027-02-03", "items": { "bt_cam": 10, "bt_ngot": 10, "bt_thit": 10 }, "totalAmount": 3770000, "notes": "", "createdAt": "2026-11-10T03:22:51.053Z" },
+  { "id": "BH-003", "marketId": "cho_hoa_khang", "date": "2027-02-03", "items": { "bc_dacbiet": 15, "bc_chay": 15 }, "totalAmount": 3825000, "notes": "", "createdAt": "2026-11-10T03:22:54.799Z" },
+  { "id": "BH-004", "marketId": "cho_dong_khanh", "date": "2027-02-03", "items": { "bt_ngot": 20, "bc_thit": 20, "bt_chay": 10 }, "totalAmount": 6120000, "notes": "", "createdAt": "2026-11-10T03:23:00.069Z" },
+  { "id": "BH-005", "marketId": "cho_ba_chiu", "date": "2027-02-04", "items": { "bc_thit_lon": 30, "bt_thit": 30 }, "totalMonto": 7440000, "totalAmount": 7440000, "notes": "Chợ Bà Chiểu đợt 1", "createdAt": "2026-11-10T04:00:00.000Z" },
+  { "id": "BH-006", "marketId": "cho_tan_dinh", "date": "2027-02-04", "items": { "bc_chay_lon": 25, "bt_ngot": 25 }, "totalAmount": 4825000, "notes": "", "createdAt": "2026-11-10T04:10:00.000Z" },
+  { "id": "BH-007", "marketId": "cho_an_dong", "date": "2027-02-04", "items": { "bc_dacbiet": 40, "bt_thit": 40 }, "totalAmount": 10920000, "notes": "Hút chân không", "createdAt": "2026-11-10T04:20:00.000Z" },
+  { "id": "BH-008", "marketId": "cho_tho_duc", "date": "2027-02-04", "items": { "bc_thit": 50, "bt_chay": 50 }, "totalAmount": 13000000, "notes": "Xe tải lớn lấy hàng", "createdAt": "2026-11-10T04:30:00.000Z" },
+  { "id": "BH-009", "marketId": "cho_phu_nhuan", "date": "2027-02-04", "items": { "bc_chay": 20, "bt_ngot": 20 }, "totalAmount": 3860000, "notes": "", "createdAt": "2026-11-10T04:40:00.000Z" },
+  { "id": "BH-010", "marketId": "cho_pham_van_hai", "date": "2027-02-04", "items": { "bc_thit_lon": 20, "bt_thit": 20 }, "totalAmount": 4960000, "notes": "", "createdAt": "2026-11-10T04:50:00.000Z" },
+  { "id": "BH-011", "marketId": "cho_xom_moi", "date": "2027-02-05", "items": { "bc_thit": 30, "bt_ngot": 30 }, "totalAmount": 6240000, "notes": "Đợt cuối 29 Tết", "createdAt": "2026-11-10T05:00:00.000Z" },
+  { "id": "BH-012", "marketId": "cho_go_vap", "date": "2027-02-05", "items": { "bc_chay": 40, "bt_chay": 40 }, "totalAmount": 10120000, "notes": "", "createdAt": "2026-11-10T05:10:00.000Z" },
+  { "id": "BH-013", "marketId": "cho_tan_phu", "date": "2027-02-05", "items": { "bc_dacbiet": 20, "bt_thit": 20 }, "totalAmount": 5460000, "notes": "", "createdAt": "2026-11-10T05:20:00.000Z" },
+  { "id": "BH-014", "marketId": "cho_binh_thoi", "date": "2027-02-05", "items": { "bc_thit_lon": 15, "bt_ngot": 15 }, "totalAmount": 3435000, "notes": "", "createdAt": "2026-11-10T05:30:00.000Z" },
+  { "id": "BH-015", "marketId": "cho_cay_go", "date": "2027-02-05", "items": { "bc_chay_lon": 25, "bt_chay": 25 }, "totalAmount": 6325000, "notes": "", "createdAt": "2026-11-10T05:40:00.000Z" },
+  { "id": "BH-016", "marketId": "cho_tan_binh", "date": "2027-02-05", "items": { "bc_thit": 60, "bt_thit": 60 }, "totalAmount": 14880000, "notes": "Chợ Tân Bình xả hàng", "createdAt": "2026-11-10T05:50:00.000Z" },
+  { "id": "BH-017", "marketId": "cho_vinh_loc", "date": "2027-02-05", "items": { "bc_chay": 15, "bt_ngot": 15 }, "totalAmount": 2895000, "notes": "", "createdAt": "2026-11-10T06:00:00.000Z" },
+  { "id": "BH-018", "marketId": "cho_hoc_mon", "date": "2027-02-05", "items": { "bc_dacbiet": 10, "bt_thit": 10 }, "totalAmount": 2730000, "notes": "", "createdAt": "2026-11-10T06:10:00.000Z" },
+  { "id": "BH-019", "marketId": "cho_cu_chi", "date": "2027-02-05", "items": { "bc_thit": 25, "bt_chay": 25 }, "totalAmount": 6500000, "notes": "", "createdAt": "2026-11-10T06:20:00.000Z" },
+  { "id": "BH-020", "marketId": "cho_nha_be", "date": "2027-02-05", "items": { "bc_chay_lon": 20, "bt_ngot": 20 }, "totalAmount": 3960000, "notes": "Chuyến cuối hoàn tất", "createdAt": "2026-11-10T06:30:00.000Z" }
 ]

@@ -1,30 +1,22 @@
 [
-  {
-    "id": "cho_ben_thanh",
-    "name": "Chị Hương",
-    "stall": "Sạp 12 - Chợ Bến Thành",
-    "phone": "0908123456",
-    "notes": "Chợ bán sỉ gần nhà, lấy xe tải."
-  },
-  {
-    "id": "cho_nguyen_an",
-    "name": "Anh Tuấn",
-    "stall": "Sạp 4 - Chợ Nguyễn An",
-    "phone": "0912987654",
-    "notes": "Bán lẻ lẫn sỉ, cần bánh đồng đều."
-  },
-  {
-    "id": "cho_hoa_khang",
-    "name": "Cô Nhung",
-    "stall": "Sạp 27 - Chợ Hòa Khánh",
-    "phone": "0977443322",
-    "notes": "Chuyên bánh chưng ngọt."
-  },
-  {
-    "id": "cho_dong_khanh",
-    "name": "Anh Phúc",
-    "stall": "Sạp 8 - Chợ Đông Khánh",
-    "phone": "0387654321",
-    "notes": ""
-  }
+  { "id": "cho_ben_thanh", "name": "Chị Hương", "stall": "Sạp 12 - Chợ Bến Thành", "phone": "0908123456", "notes": "Chợ bán sỉ gần nhà, lấy xe tải." },
+  { "id": "cho_nguyen_an", "name": "Anh Tuấn", "stall": "Sạp 4 - Chợ Nguyễn An", "phone": "0912987654", "notes": "Bán lẻ lẫn sỉ, cần bánh đồng đều." },
+  { "id": "cho_hoa_khang", "name": "Cô Nhung", "stall": "Sạp 27 - Chợ Hòa Khánh", "phone": "0977443322", "notes": "Chuyên bánh chưng ngọt." },
+  { "id": "cho_dong_khanh", "name": "Anh Phúc", "stall": "Sạp 8 - Chợ Đông Khánh", "phone": "0387654321", "notes": "" },
+  { "id": "cho_ba_chiu", "name": "Cô Mai", "stall": "Sạp 15 - Chợ Bà Chiểu", "phone": "0903111222", "notes": "Lấy hàng vào lúc 3h sáng." },
+  { "id": "cho_tan_dinh", "name": "Chú Bình", "stall": "Sạp 88 - Chợ Tân Định", "phone": "0918333444", "notes": "Ưu tiên bánh tét chất lượng cao." },
+  { "id": "cho_an_dong", "name": "Chị Hạnh", "stall": "Kios 32 - Chợ An Đông", "phone": "0938555666", "notes": "Đóng gói hút chân không cẩn thận." },
+  { "id": "cho_tho_duc", "name": "Anh Long", "stall": "Sạp 5 - Chợ Thủ Đức", "phone": "0972777888", "notes": "Khách sỉ lấy số lượng lớn." },
+  { "id": "cho_phu_nhuan", "name": "Cô Lan", "stall": "Sạp 19 - Chợ Phú Nhuận", "phone": "0989000111", "notes": "" },
+  { "id": "cho_pham_van_hai", "name": "Chú Hùng", "stall": "Sạp 41 - Chợ Phạm Văn Hai", "phone": "0905222333", "notes": "Thanh toán tiền mặt ngay khi nhận." },
+  { "id": "cho_xom_moi", "name": "Chị Thảo", "stall": "Sạp 10 - Chợ Xóm Mới", "phone": "0914333555", "notes": "Lấy thêm bánh chưng chay." },
+  { "id": "cho_go_vap", "name": "Anh Dũng", "stall": "Sạp 63 - Chợ Gò Vấp", "phone": "0932444666", "notes": "Giao trước 4h30 sáng." },
+  { "id": "cho_tan_phu", "name": "Cô Ngọc", "stall": "Sạp 22 - Chợ Tân Phú", "phone": "0976555777", "notes": "" },
+  { "id": "cho_binh_thoi", "name": "Chú Khoa", "stall": "Sạp 7 - Chợ Bình Thới", "phone": "0981666888", "notes": "Chuyên cung cấp cho quán ăn." },
+  { "id": "cho_cay_go", "name": "Chị Phượng", "stall": "Sạp 14 - Chợ Cây Gõ", "phone": "0907777999", "notes": "Cần hóa đơn đỏ nếu có." },
+  { "id": "cho_tan_binh", "name": "Anh Nam", "stall": "Sạp 50 - Chợ Tân Bình", "phone": "0919888000", "notes": "Lượng tiêu thụ mạnh ngày 28-29 Tết." },
+  { "id": "cho_vinh_loc", "name": "Cô Hoa", "stall": "Sạp 3 - Chợ Vĩnh Lộc", "phone": "0931999111", "notes": "" },
+  { "id": "cho_hoc_mon", "name": "Chú Minh", "stall": "Sạp 18 - Chợ Hóc Môn", "phone": "0974000222", "notes": "Giao tuyến ngoại thành." },
+  { "id": "cho_cu_chi", "name": "Chị Thủy", "stall": "Sạp 9 - Chợ Củ Chi", "phone": "0983111333", "notes": "Lấy hàng đều đặn mỗi ngày." },
+  { "id": "cho_nha_be", "name": "Anh Hải", "stall": "Sạp 21 - Chợ Nhà Bè", "phone": "0902222444", "notes": "Khách quen lâu năm." }
 ]

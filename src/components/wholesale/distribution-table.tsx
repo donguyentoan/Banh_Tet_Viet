@@ -61,29 +61,32 @@ export function DistributionTable({
             className="overflow-hidden rounded-xl border border-amber-200 bg-white shadow-sm"
           >
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-300 bg-gradient-to-r from-red-800 via-red-700 to-amber-700 px-4 py-3 text-white">
-              <div className="min-w-0">
-                <h3 className="flex items-center gap-2 text-sm font-extrabold">
-                  <span className="text-lg">🏪</span>
-                  {market.name}
-                </h3>
-                <p className="truncate text-[11px] text-red-100">
-                  {market.stall} · ☎ {market.phone}
-                </p>
+              <div className="flex justify-between items-center gap-6 w-full">
+                <div className="min-w-0">
+                  <h3 className="flex items-center gap-2 text-sm font-extrabold">
+                    <span className="text-lg">🏪</span>
+                    {market.name}
+                  </h3>
+                  <p className="truncate text-[11px] text-red-100">
+                    {market.stall} · ☎ {market.phone}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2"> 
+                  {market.phone !== "" ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-10 text-red-600 hover:bg-red-50 sm:size-8"
+                    title="Gọi khách hàng"
+                  >
+                  <a className="bg-white p-2 rounded-2xl border-1" href={`tel:${market.phone}`}>
+                    <PhoneCall className="size-5" />
+                  </a>
+                  </Button>
+                ) : null}
+                </div>
               </div>
-              <div> 
-                {market.phone !== "" ? (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-10 text-red-600 hover:bg-red-50 sm:size-8"
-                  title="Gọi khách hàng"
-                >
-                <a className="bg-white p-2 rounded-2xl border-1" href={`tel:${market.phone}`}>
-                  <PhoneCall className="size-5" />
-                </a>
-                </Button>
-              ) : null}
-              </div>
+
               <div className="flex flex-wrap items-center gap-2">
                 <Badge className="border-amber-300 bg-amber-400 text-[11px] font-black text-amber-950">
                   {totalQty} bánh
