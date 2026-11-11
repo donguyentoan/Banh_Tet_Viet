@@ -14,6 +14,14 @@ const MOCK_PRODUCTS: Product[] = [
     icon: "🍃",
     weight: "1.2 kg",
   },
+    {
+    id: "bc_thit",
+    name: "Bánh Chưng Truyền Thống",
+    price: 150000,
+    category: "CHUNG",
+    icon: "🍃",
+    weight: "1.2 kg",
+  },
 ];
 
 beforeAll(() => {
