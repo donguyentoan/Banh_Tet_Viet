@@ -54,19 +54,29 @@ export function buildCodeIndex(products: Product[]): Map<string, Product> {
     const candidates: string[] = [];
 
     if (name.includes("chung")) {
-      if (name.includes("dac") && name.includes("biet")) candidates.push("cdb");
-      else if (name.includes("chay")) candidates.push("cc");
-      else candidates.push("cm");
+      const isLarge = name.includes("lon");
+
+      if (name.includes("chay")) {
+        candidates.push(isLarge ? "ccl" : "cc");
+      } else {
+        candidates.push(isLarge ? "cml" : "cm");
+      }
     }
 
     if (name.includes("tet")) {
-      if (name.includes("nep") && name.includes("cam")) candidates.push("tmc");
-      else if (name.includes("chuoi")) candidates.push("tc");
-      else candidates.push("tt");
+      if (name.includes("ngot")) {
+        candidates.push("tn");
+      } else if (name.includes("chay")) {
+        candidates.push("tc");
+      } else {
+        candidates.push("tt");
+      }
     }
 
     for (const code of candidates) {
-      if (!index.has(code)) index.set(code, product);
+      if (!index.has(code)) {
+        index.set(code, product);
+      }
     }
   }
 
@@ -208,21 +218,57 @@ const NOISE_WORDS = [
 /** Cách gọi tự nhiên thường dùng khi đọc đơn bằng giọng nói. */
 function getVoiceProductAliases(product: Product): string[] {
   const name = normalizeText(product.name);
+
   if (product.category === "CHUNG") {
-    if (name.includes("dac biet")) {
-      return ["bánh chưng đặc biệt", "chưng đặc biệt", "đặc biệt"];
-    }
+    const isLarge = name.includes("lon");
+
     if (name.includes("chay")) {
-      return ["bánh chưng chay", "chưng chay"];
+      return isLarge
+        ? [
+            "bánh chưng chay lớn",
+            "chưng chay lớn",
+            "bánh chưng lớn chay",
+          ]
+        : [
+            "bánh chưng chay",
+            "chưng chay",
+          ];
     }
-    return ["bánh chưng mặn", "chưng mặn", "bánh chưng thịt", "chưng thịt"];
+
+    return isLarge
+      ? [
+          "bánh chưng thịt lớn",
+          "chưng thịt lớn",
+          "bánh chưng mặn lớn",
+          "chưng mặn lớn",
+        ]
+      : [
+          "bánh chưng mặn",
+          "chưng mặn",
+          "bánh chưng thịt",
+          "chưng thịt",
+        ];
   }
 
-  if (name.includes("chuoi")) return ["bánh tét chuối", "tét chuối"];
-  if (name.includes("nep cam")) {
-    return ["bánh tét nếp cẩm", "tét nếp cẩm", "nếp cẩm"];
+  if (name.includes("ngot")) {
+    return [
+      "bánh tét nhân ngọt",
+      "bánh tét ngọt",
+      "tét ngọt",
+      "nhân ngọt",
+    ];
   }
-  return ["bánh tét thịt", "tét thịt"];
+
+  if (name.includes("chay")) {
+    return ["bánh tét chay", "tét chay"];
+  }
+
+  return [
+    "bánh tét thịt",
+    "tét thịt",
+    "bánh tét mặn",
+    "tét mặn",
+  ];
 }
 
 const SPOKEN_NUMBERS: Record<string, number> = {
@@ -293,27 +339,50 @@ export function parseQuickOrder(
   }
 
   // Nhận câu nói tự nhiên như “5 bánh chưng mặn”, ngoài cú pháp mã CM/CC.
-  const normalizedText = normalizeText(text);
-  const spokenQty = "(\\d{1,3}|mot|hai|ba|bon|tu|nam|sau|bay|tam|chin|muoi)";
-  for (const product of products) {
-    const aliases = getVoiceProductAliases(product)
-      .map(normalizeText)
-      .sort((a, b) => b.length - a.length);
-    const aliasPattern = aliases.map(escapeRegex).join("|");
-    const spokenPattern = new RegExp(
-      `\\b${spokenQty}\\s*(?:(?:cai|chiec)\\s+)?(?:${aliasPattern})\\b|\\b(?:${aliasPattern})\\s+${spokenQty}\\b`,
-      "g",
+  // Nhận câu nói tự nhiên như “5 bánh chưng chay lớn”.
+const normalizedText = normalizeText(text);
+const spokenQty =
+  "(\\d{1,3}|mot|hai|ba|bon|tu|nam|sau|bay|tam|chin|muoi)";
+
+// Gom tất cả alias của sản phẩm và ưu tiên alias dài nhất.
+const voiceProducts = products
+  .flatMap((product) =>
+    getVoiceProductAliases(product).map((alias) => ({
+      product,
+      alias: normalizeText(alias),
+    })),
+  )
+  .sort((a, b) => b.alias.length - a.alias.length);
+
+for (const { product, alias } of voiceProducts) {
+  const aliasPattern = escapeRegex(alias);
+
+  const spokenPattern = new RegExp(
+    `\\b${spokenQty}\\s*(?:(?:cai|chiec)\\s+)?(?:${aliasPattern})(?!\\s+lon\\b)\\b|\\b(?:${aliasPattern})(?!\\s+lon\\b)\\s+${spokenQty}\\b`,
+    "g",
+  );
+
+  let spokenMatch: RegExpExecArray | null;
+
+  while ((spokenMatch = spokenPattern.exec(normalizedText)) !== null) {
+    const quantity = parseSpokenNumber(
+      spokenMatch[1] ?? spokenMatch[2] ?? "",
     );
-    let spokenMatch: RegExpExecArray | null;
-    while ((spokenMatch = spokenPattern.exec(normalizedText)) !== null) {
-      const quantity = parseSpokenNumber(spokenMatch[1] ?? spokenMatch[2] ?? "");
-      if (quantity <= 0) continue;
-      // Nếu người dùng vừa nói mã vừa nói tên, tránh cộng trùng cùng một loại.
-      if (!quantities[product.id]) quantities[product.id] = quantity;
-      const label = product.code ?? product.id;
-      if (!matchedCodes.includes(label)) matchedCodes.push(label);
+
+    if (quantity <= 0) continue;
+
+    // Không cộng trùng nếu sản phẩm đã được nhận diện bằng mã.
+    if (!quantities[product.id]) {
+      quantities[product.id] = quantity;
+    }
+
+    const label = product.code ?? product.id;
+
+    if (!matchedCodes.includes(label)) {
+      matchedCodes.push(label);
     }
   }
+}
 
   // 2) Tìm mã lạ: chữ in hoa 2-4 ký tự đứng cạnh số lượng (VD: "2 XY")
   const unknownPattern = /(\d{1,4})\s+([A-ZĐ]{2,4})\b|\b([A-ZĐ]{2,4})\s+(\d{1,4})\b/g;
