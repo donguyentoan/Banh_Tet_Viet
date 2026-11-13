@@ -31,7 +31,7 @@ interface StatusMessage {
   text: string;
 }
 
-function NotificationPage() {
+ export function NotificationPage() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<StatusMessage | null>(null);
   

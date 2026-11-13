@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { formatMoney } from "@/lib/format";
 import { calculateDashboardStats } from "@/lib/stats";
 import type { Order, Product } from "@/lib/types";
+import { NotificationPage } from "@/routes/notification";
 
 function StatCard({
   title,
@@ -70,7 +71,7 @@ export function DashboardStats({
   );
 
   return (
-    <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard
         title="Tổng Đơn Hàng"
         value={stats.totalOrders}
@@ -127,6 +128,17 @@ export function DashboardStats({
             {formatMoney(stats.totalDeposit)}
           </strong>
         </span>
+      </StatCard>
+
+       <StatCard
+        title="Thông báo Facebook"
+        value={""}
+        accent="text-amber-500"
+        borderClass="border-amber-100"
+        icon={<Coins className="size-16" />}
+        iconClass="bg-amber-100 text-amber-600"
+      >
+      <NotificationPage />
       </StatCard>
 
     </div>
