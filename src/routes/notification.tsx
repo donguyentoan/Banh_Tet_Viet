@@ -5,8 +5,8 @@ import { useOrders } from "@/hooks/use-orders";
 
 // Giữ nguyên FB_CONFIG theo yêu cầu của bạn
 const FB_CONFIG = {
-  PAGE_ACCESS_TOKEN: process.env.FB_PAGE_ACCESS_TOKEN,
-  OWNER_PSID: process.env.FB_OWNER_PSID
+  PAGE_ACCESS_TOKEN: "EAAlzD2yepCEBSxRLZCwcee9Do079GfMusNBCxBrfYIO0DlHdDrka6agameW8dZCYOxOUyLdo1nWVxSiZBaWYZAybZCZBIfg0CKxVOYErOhAAeoop4TZCV8ZCHOBSZA7iXaOi0G5pyTBlmeexLhR7yojPMz99dxjZAT7t7RDeZBDuoa9X4iZCWDBxYkdM00rBKFH6VGvCp42h",
+  OWNER_PSID: "39911301058514741"
 };
 
 
