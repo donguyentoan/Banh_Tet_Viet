@@ -3,55 +3,69 @@ import { Route as rootRoute } from "@/routes/__root";
 import { useState } from "react";
 import { useOrders } from "@/hooks/use-orders";
 
-// Token đã được nối liền trên 1 dòng duy nhất, tuyệt đối không xuống dòng
+// Giữ nguyên FB_CONFIG theo yêu cầu của bạn
 const FB_CONFIG = {
-  PAGE_ACCESS_TOKEN: import.meta.env.FB_PAGE_ACCESS_TOKEN,
-  OWNER_PSID: import.meta.env.FB_OWNER_PSID
+  PAGE_ACCESS_TOKEN: import.meta.env.FB_PAGE_ACCESS_TOKEN || '',
+  OWNER_PSID: import.meta.env.FB_OWNER_PSID || ''
 };
+
+// Định nghĩa kiểu dữ liệu chuẩn TypeScript để triệt tiêu lỗi
+interface OrderItem {
+  [key: string]: number | string;
+}
+
+interface Order {
+  id?: string;
+  customerName?: string;
+  phone?: string;
+  deliveryDate?: string;
+  totalAmount?: number;
+  deposit?: number;
+  items?: OrderItem;
+  [key: string]: any;
+}
+
+interface StatusMessage {
+  type: 'success' | 'error';
+  text: string;
+}
 
 function NotificationPage() {
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState(null);
-const { data: orders, isLoading, error } = useOrders();
+  const [status, setStatus] = useState<StatusMessage | null>(null);
+  
+  const { data: orders } = useOrders();
+  const typedOrders: Order[] = (orders as Order[]) || [];
 
-
-const getTodayOrders = () => {
-    // Tạm thời lấy tất cả đơn để test gửi tin nhắn bất cứ lúc nào bạn muốn
-    return orders || []; 
-    
-    // Sau khi test xong, bạn có thể đổi lại điều kiện lọc theo ý muốn:
-    // const todayStr = new Date().toISOString().split('T')[0]; 
-    // return orders?.filter((order) => order.deliveryDate === todayStr) || [];
+  const getTodayOrders = (): Order[] => {
+    return typedOrders; 
   };
-  // Tổng hợp nội dung báo cáo gửi chủ lò phù hợp với cấu trúc items object
-  const buildOwnerReportMessage = (todayOrders: any) => {
+
+  const buildOwnerReportMessage = (todayOrders: Order[]) => {
     const todayStr = new Date().toLocaleDateString('vi-VN');
     
     if (todayOrders.length === 0) {
       return `📅 BÁO CÁO ĐƠN BÁNH TẾT (${todayStr}):\nHôm nay chưa có đơn hàng nào được ghi nhận.`;
     }
 
-    const productSummary = {};
+    const productSummary: Record<string, number> = {};
     let totalRevenue = 0;
     let totalDeposit = 0;
 
-    // Từ điển ánh xạ mã bánh sang tên hiển thị tiếng Việt (bạn có thể bổ sung thêm các mã khác)
-    const itemNameMap = {
+    const itemNameMap: Record<string, string> = {
       bc_chay: "Bánh Chưng Chay",
       bc_chay_lon: "Bánh Chưng Chay Lớn",
       bt_thit: "Bánh Tét Nhân Thịt",
       bt_chuoi: "Bánh Tét Chuối",
-      // Thêm các mã khác nếu có trong hệ thống của bạn
     };
 
     todayOrders.forEach((order) => {
       totalRevenue += Number(order.totalAmount || 0);
       totalDeposit += Number(order.deposit || 0);
 
-      // Xử lý khi items là một Object (ví dụ: { bc_chay: 3, bc_chay_lon: 2 })
       if (order.items && typeof order.items === 'object') {
         Object.entries(order.items).forEach(([key, qty]) => {
-          const readableName = itemNameMap[key] || key; // Lấy tên đẹp hoặc giữ nguyên mã nếu chưa map
+          const readableName = itemNameMap[key] || key;
           productSummary[readableName] = (productSummary[readableName] || 0) + Number(qty || 0);
         });
       }
@@ -63,7 +77,6 @@ const getTodayOrders = () => {
 
     const orderDetailLines = todayOrders
       .map((o, idx) => {
-        // Gom danh sách bánh của từng đơn
         const itemsDesc = o.items && typeof o.items === 'object'
           ? Object.entries(o.items)
               .map(([key, qty]) => `${qty} ${itemNameMap[key] || key}`)
@@ -71,7 +84,7 @@ const getTodayOrders = () => {
           : '';
 
         return (
-          `${idx + 1}. ${o.customerName} (${o.phone || 'K SĐT'})\n` +
+          `${idx + 1}. ${o.customerName || 'Khách lẻ'} (${o.phone || 'K SĐT'})\n` +
           `   - Đặt: ${itemsDesc}\n` +
           `   - Tiền: ${Number(o.totalAmount || 0).toLocaleString('vi-VN')}đ (Cọc: ${Number(o.deposit || 0).toLocaleString('vi-VN')}đ)`
         );
@@ -130,9 +143,9 @@ const getTodayOrders = () => {
           text: `❌ Facebook từ chối: ${data?.error?.message || JSON.stringify(data)}`,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Lỗi kết nối:', error);
-      setStatus({ type: 'error', text: '❌ Lỗi kết nối mạng khi gọi Facebook API.' });
+      setStatus({ type: 'error', text: `❌ Lỗi kết nối mạng khi gọi Facebook API: ${error?.message || error}` });
     } finally {
       setLoading(false);
     }
