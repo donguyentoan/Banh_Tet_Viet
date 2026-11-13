@@ -5,9 +5,10 @@ import { useOrders } from "@/hooks/use-orders";
 
 // Giữ nguyên FB_CONFIG theo yêu cầu của bạn
 const FB_CONFIG = {
-  PAGE_ACCESS_TOKEN: import.meta.env.FB_PAGE_ACCESS_TOKEN || '',
-  OWNER_PSID: import.meta.env.FB_OWNER_PSID || ''
+  PAGE_ACCESS_TOKEN: (import.meta.env as Record<string, any>).FB_PAGE_ACCESS_TOKEN || '',
+  OWNER_PSID: (import.meta.env as Record<string, any>).FB_OWNER_PSID || ''
 };
+
 
 // Định nghĩa kiểu dữ liệu chuẩn TypeScript để triệt tiêu lỗi
 interface OrderItem {
