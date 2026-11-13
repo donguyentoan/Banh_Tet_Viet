@@ -52,8 +52,8 @@ function NotificationPage() {
     const productSummary: Record<string, number> = {};
     let totalRevenue = 0;
     let totalDeposit = 0;
+    let totalRemaining = 0;
 
-    // Từ điển ánh xạ đầy đủ tất cả các mã bánh trong hệ thống
     const itemNameMap: Record<string, string> = {
       bc_thit: "Bánh Chưng Thịt Mỡ",
       bc_chay: "Bánh Chưng Chay",
@@ -62,12 +62,17 @@ function NotificationPage() {
       bt_thit: "Bánh Tét Thịt Mỡ",
       bt_ngot: "Bánh Tét Nhân Ngọt",
       bt_chay: "Bánh Tét Chay",
-      bt_chuoi: "Bánh Tét Chuối", // Dự phòng nếu có mã cũ
+      bt_chuoi: "Bánh Tét Chuối",
     };
 
     todayOrders.forEach((order) => {
-      totalRevenue += Number(order.totalAmount || 0);
-      totalDeposit += Number(order.deposit || 0);
+      const revenue = Number(order.totalAmount || 0);
+      const deposit = Number(order.deposit || 0);
+      const remaining = revenue - deposit;
+
+      totalRevenue += revenue;
+      totalDeposit += deposit;
+      totalRemaining += remaining;
 
       if (order.items && typeof order.items === 'object') {
         Object.entries(order.items).forEach(([key, qty]) => {
@@ -77,12 +82,17 @@ function NotificationPage() {
       }
     });
 
+    // Sửa lại format số lượng để không bị lỗi dính dấu sao * trên Messenger
     const summaryLines = Object.entries(productSummary)
-      .map(([name, qty]) => `  • ${name}: *${qty}* cái`)
+      .map(([name, qty]) => `  • ${name}: *${qty} cái*`)
       .join('\n');
 
     const orderDetailLines = todayOrders
       .map((o, idx) => {
+        const revenue = Number(o.totalAmount || 0);
+        const deposit = Number(o.deposit || 0);
+        const remaining = revenue - deposit;
+
         const itemsDesc = o.items && typeof o.items === 'object'
           ? Object.entries(o.items)
               .map(([key, qty]) => `${qty} ${itemNameMap[key] || key}`)
@@ -92,7 +102,7 @@ function NotificationPage() {
         return (
           `🔹 *${idx + 1}. ${o.customerName || 'Khách lẻ'}* (${o.phone || 'Chưa có SĐT'})\n` +
           `   - Đặt: ${itemsDesc}\n` +
-          `   - Tiền: ${Number(o.totalAmount || 0).toLocaleString('vi-VN')}đ | Cọc: ${Number(o.deposit || 0).toLocaleString('vi-VN')}đ`
+          `   - Tiền: ${revenue.toLocaleString('vi-VN')}đ | Cọc: ${deposit.toLocaleString('vi-VN')}đ | Thu thêm: *${remaining.toLocaleString('vi-VN')}đ*`
         );
       })
       .join('\n\n');
@@ -104,12 +114,13 @@ function NotificationPage() {
       `${summaryLines || '  (Chưa có sản phẩm)'}\n\n` +
       `💰 *Tổng doanh thu:* ${totalRevenue.toLocaleString('vi-VN')}đ\n` +
       `💵 *Tổng tiền cọc:* ${totalDeposit.toLocaleString('vi-VN')}đ\n` +
+      `📥 *Cần thu thêm:* ${totalRemaining.toLocaleString('vi-VN')}đ\n` +
       `==============================\n` +
       `📋 *CHI TIẾT TỪNG ĐƠN HÀNG:*\n\n` +
       `${orderDetailLines}`
     );
   };
-  
+
   const handleSendDirectFb = async () => {
     const todayOrders = getTodayOrders();
     const messageText = buildOwnerReportMessage(todayOrders);
