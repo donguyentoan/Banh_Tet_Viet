@@ -113,11 +113,17 @@ function NotificationPage() {
     setStatus(null);
 
     try {
-      const cleanToken = FB_CONFIG.PAGE_ACCESS_TOKEN.trim().replace(/\s+/g, '');
-      const url = `/fb-api/v21.0/me/messages?access_token=${encodeURIComponent(cleanToken)}`;
+      // Làm sạch token, loại bỏ khoảng trắng thừa nếu có lúc copy dán
+      const cleanToken = (FB_CONFIG.PAGE_ACCESS_TOKEN || "").trim().replace(/\s+/g, '');
+      const cleanPsid = (FB_CONFIG.OWNER_PSID || "").trim().replace(/\s+/g, '');
+
+      console.log("Đang gửi tin nhắn với PSID:", cleanPsid);
+      console.log("Độ dài Token:", cleanToken.length);
+
+      const url = `https://graph.facebook.com/v21.0/me/messages?access_token=${encodeURIComponent(cleanToken)}`;
 
       const payload = {
-        recipient: { id: FB_CONFIG.OWNER_PSID },
+        recipient: { id: cleanPsid },
         messaging_type: 'RESPONSE',
         message: { text: messageText },
       };
@@ -130,23 +136,31 @@ function NotificationPage() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const responseText = await res.text();
+      console.log("Phản hồi thô từ Facebook:", responseText);
 
-      if (res.ok && data.message_id) {
+      let data;
+      try {
+        data = responseText ? JSON.parse(responseText) : {};
+      } catch (e) {
+        data = { error: { message: responseText || "Phản hồi trống từ Facebook" } };
+      }
+
+      if (res.ok && (data.message_id || data.recipient_id)) {
         setStatus({
           type: 'success',
-          text: `✅ Đã gửi thành công báo cáo (${todayOrders.length} đơn) tới Messenger chủ lò! (ID: ${data.message_id})`,
+          text: `✅ Đã gửi thành công báo cáo (${todayOrders.length} đơn) tới Messenger chủ lò!`,
         });
       } else {
-        console.error('Lỗi từ Facebook:', data);
+        console.error('Lỗi chi tiết từ Facebook:', data);
         setStatus({
           type: 'error',
           text: `❌ Facebook từ chối: ${data?.error?.message || JSON.stringify(data)}`,
         });
       }
     } catch (error: any) {
-      console.error('Lỗi kết nối:', error);
-      setStatus({ type: 'error', text: `❌ Lỗi kết nối mạng khi gọi Facebook API: ${error?.message || error}` });
+      console.error('Lỗi kết nối mạng:', error);
+      setStatus({ type: 'error', text: `❌ Lỗi kết nối mạng hoặc CORS: ${error?.message || error}` });
     } finally {
       setLoading(false);
     }
