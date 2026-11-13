@@ -1,12 +1,15 @@
 {
   "functions": {
+    "api/send-report.ts": {
+      "includeFiles": "data/*.json"
+    },
     "api/[...path].ts": {
       "includeFiles": "data/*.json"
     }
   },
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/((?!send-report).*)",
       "destination": "/api/[...path]"
     },
     {
@@ -15,9 +18,9 @@
     }
   ],
   "crons": [
-  {
-    "path": "/api/send-report",
-    "schedule": "10 7 * * *"
-  }
-]
+    {
+      "path": "/api/send-report",
+      "schedule": "10 7 * * *"
+    }
+  ]
 }
