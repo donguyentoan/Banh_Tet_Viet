@@ -240,5 +240,13 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    proxy: {
+      // Chuyển tiếp các request bắt đầu bằng /fb-api ngầm sang Facebook Graph API
+      '/fb-api': {
+        target: 'https://graph.facebook.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/fb-api/, ''),
+      },
+    },
   },
 });
