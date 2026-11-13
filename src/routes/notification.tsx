@@ -53,11 +53,16 @@ function NotificationPage() {
     let totalRevenue = 0;
     let totalDeposit = 0;
 
+    // Từ điển ánh xạ đầy đủ tất cả các mã bánh trong hệ thống
     const itemNameMap: Record<string, string> = {
+      bc_thit: "Bánh Chưng Thịt Mỡ",
       bc_chay: "Bánh Chưng Chay",
-      bc_chay_lon: "Bánh Chưng Chay Lớn",
-      bt_thit: "Bánh Tét Nhân Thịt",
-      bt_chuoi: "Bánh Tét Chuối",
+      bc_thit_lon: "Bánh Chưng Thịt Mỡ (Lớn)",
+      bc_chay_lon: "Bánh Chưng Chay (Lớn)",
+      bt_thit: "Bánh Tét Thịt Mỡ",
+      bt_ngot: "Bánh Tét Nhân Ngọt",
+      bt_chay: "Bánh Tét Chay",
+      bt_chuoi: "Bánh Tét Chuối", // Dự phòng nếu có mã cũ
     };
 
     todayOrders.forEach((order) => {
@@ -73,7 +78,7 @@ function NotificationPage() {
     });
 
     const summaryLines = Object.entries(productSummary)
-      .map(([name, qty]) => `  • ${name}: ${qty} cái`)
+      .map(([name, qty]) => `  • ${name}: *${qty}* cái`)
       .join('\n');
 
     const orderDetailLines = todayOrders
@@ -82,29 +87,29 @@ function NotificationPage() {
           ? Object.entries(o.items)
               .map(([key, qty]) => `${qty} ${itemNameMap[key] || key}`)
               .join(', ')
-          : '';
+          : 'Không có chi tiết';
 
         return (
-          `${idx + 1}. ${o.customerName || 'Khách lẻ'} (${o.phone || 'K SĐT'})\n` +
+          `🔹 *${idx + 1}. ${o.customerName || 'Khách lẻ'}* (${o.phone || 'Chưa có SĐT'})\n` +
           `   - Đặt: ${itemsDesc}\n` +
-          `   - Tiền: ${Number(o.totalAmount || 0).toLocaleString('vi-VN')}đ (Cọc: ${Number(o.deposit || 0).toLocaleString('vi-VN')}đ)`
+          `   - Tiền: ${Number(o.totalAmount || 0).toLocaleString('vi-VN')}đ | Cọc: ${Number(o.deposit || 0).toLocaleString('vi-VN')}đ`
         );
       })
-      .join('\n');
+      .join('\n\n');
 
     return (
-      `🧧 BÁO CÁO ĐƠN BÁNH TẾT VIỆT (${todayStr})\n` +
+      `🧧 *BÁO CÁO ĐƠN BÁNH TẾT VIỆT* (${todayStr})\n` +
       `==============================\n` +
-      `📦 TỔNG SỐ LƯỢNG CẦN LÀM (${todayOrders.length} đơn):\n` +
-      `${summaryLines || '  (Xem chi tiết bên dưới)'}\n\n` +
-      `💰 Tổng tiền hàng: ${totalRevenue.toLocaleString('vi-VN')}đ\n` +
-      `💵 Đã cọc: ${totalDeposit.toLocaleString('vi-VN')}đ\n` +
+      `📦 *TỔNG SỐ LƯỢNG CẦN GÓI (${todayOrders.length} đơn):*\n` +
+      `${summaryLines || '  (Chưa có sản phẩm)'}\n\n` +
+      `💰 *Tổng doanh thu:* ${totalRevenue.toLocaleString('vi-VN')}đ\n` +
+      `💵 *Tổng tiền cọc:* ${totalDeposit.toLocaleString('vi-VN')}đ\n` +
       `==============================\n` +
-      `📋 CHI TIẾT TỪNG ĐƠN HÔM NAY:\n` +
+      `📋 *CHI TIẾT TỪNG ĐƠN HÀNG:*\n\n` +
       `${orderDetailLines}`
     );
   };
-
+  
   const handleSendDirectFb = async () => {
     const todayOrders = getTodayOrders();
     const messageText = buildOwnerReportMessage(todayOrders);
