@@ -17,10 +17,10 @@
       "destination": "/index.html"
     }
   ],
-  "crons": [
+ "crons": [
     {
       "path": "/api/send-report",
-      "schedule": "10 7 * * *"
+      "schedule": "31 7 * * *"
     }
   ]
 }
