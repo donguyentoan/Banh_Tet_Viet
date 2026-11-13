@@ -108,7 +108,7 @@ function NotificationPage() {
       .join('\n\n');
 
     return (
-      `🧧 *BÁO CÁO ĐƠN BÁNH TẾT VIỆT* (${todayStr})\n` +
+      `🧧 *BÁO CÁO ĐƠN BÁNH TẾT VIỆT 2027* (${todayStr})\n` +
       `==============================\n` +
       `📦 *TỔNG SỐ LƯỢNG CẦN GÓI (${todayOrders.length} đơn):*\n` +
       `${summaryLines || '  (Chưa có sản phẩm)'}\n\n` +
@@ -132,10 +132,6 @@ function NotificationPage() {
       // Làm sạch token, loại bỏ khoảng trắng thừa nếu có lúc copy dán
       const cleanToken = (FB_CONFIG.PAGE_ACCESS_TOKEN || "").trim().replace(/\s+/g, '');
       const cleanPsid = (FB_CONFIG.OWNER_PSID || "").trim().replace(/\s+/g, '');
-
-      console.log("Đang gửi tin nhắn với PSID:", cleanPsid);
-      console.log("Độ dài Token:", cleanToken.length);
-
       const url = `https://graph.facebook.com/v21.0/me/messages?access_token=${encodeURIComponent(cleanToken)}`;
 
       const payload = {
@@ -165,7 +161,7 @@ function NotificationPage() {
       if (res.ok && (data.message_id || data.recipient_id)) {
         setStatus({
           type: 'success',
-          text: `✅ Đã gửi thành công báo cáo (${todayOrders.length} đơn) tới Messenger chủ lò!`,
+          text: `✅ Đã gửi thành công báo cáo (${todayOrders.length} đơn)`,
         });
       } else {
         console.error('Lỗi chi tiết từ Facebook:', data);
@@ -189,11 +185,8 @@ function NotificationPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="font-bold text-gray-800">
-            Báo cáo đơn hôm nay cho Chủ Lò ({todayCount} đơn)
+            Báo cáo đơn hôm nay ({todayCount} đơn)
           </h3>
-          <p className="text-xs text-gray-600">
-            Tự động tổng hợp số lượng bánh cần gói và gửi thẳng qua Messenger.
-          </p>
         </div>
 
         <button
@@ -201,7 +194,7 @@ function NotificationPage() {
           disabled={loading}
           className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white text-sm font-semibold rounded-lg shadow-sm transition-all cursor-pointer"
         >
-          {loading ? 'Đang gửi...' : '🚀 Gửi FB cho Chủ Lò'}
+          {loading ? 'Đang gửi...' : '🚀 Gửi thông báo'}
         </button>
       </div>
 
