@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, Printer, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { type Order, type Product } from "@/lib/types";
-import { elementToLabelPngBlob, sharePdfToLabelExpert } from "@/lib/label-expert";
+import { elementToLabelPngBlob, shareFilesToLabelExpert } from "@/lib/label-expert";
 import { OrderPrintSheet } from "@/components/orders/order-print-sheet";
 
 interface OrderDetailDialogProps {
@@ -27,20 +27,46 @@ export function OrderDetailDialog({
   onOpenChange,
 }: OrderDetailDialogProps) {
   const [printing, setPrinting] = useState(false);
+  /** Ảnh phiếu tạo sẵn khi mở dialog: navigator.share phải gọi ngay trong cú
+   *  bấm, nếu chờ tạo ảnh vài giây trình duyệt sẽ báo "Must be handling a user
+   *  gesture". */
+  const [labelFile, setLabelFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    setLabelFile(null);
+    if (!open || !order) return;
+    let cancelled = false;
+    // Đợi dialog render xong #print-area rồi mới chụp
+    const timer = setTimeout(async () => {
+      const el = document.getElementById("print-area");
+      if (!el) return;
+      try {
+        const blob = await elementToLabelPngBlob(el);
+        if (!cancelled)
+          setLabelFile(new File([blob], `don-${order.id}.png`, { type: "image/png" }));
+      } catch (e) {
+        if (!cancelled)
+          toast.error(e instanceof Error ? e.message : "Không tạo được phiếu in");
+      }
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [open, order, products]);
 
   if (!order) return null;
 
   async function handlePrint() {
-    const el = document.getElementById("print-area");
-    if (!el || !order) return;
+    if (!labelFile) return;
     setPrinting(true);
     try {
-      const blob = await elementToLabelPngBlob(el);
-      const r = await sharePdfToLabelExpert(blob, `don-${order.id}.png`);
+      // Không await gì trước share để giữ "user gesture"
+      const r = await shareFilesToLabelExpert([labelFile]);
       if (r === "downloaded")
         toast.info("Trình duyệt không hỗ trợ chia sẻ file, đã tải ảnh phiếu về máy.");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Không tạo được phiếu in");
+      toast.error(e instanceof Error ? e.message : "Không in được phiếu");
     } finally {
       setPrinting(false);
     }
@@ -70,15 +96,15 @@ export function OrderDetailDialog({
           </Button>
           <Button
             onClick={handlePrint}
-            disabled={printing}
+            disabled={printing || !labelFile}
             className="gap-2 bg-emerald-600 font-bold text-white hover:bg-emerald-700"
           >
-            {printing ? (
+            {printing || !labelFile ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
               <Printer className="size-4" />
             )}
-            {printing ? "Đang tạo phiếu..." : "In Phiếu Đặt Hàng"}
+            {!labelFile ? "Đang chuẩn bị phiếu..." : "In Phiếu Đặt Hàng"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -207,10 +207,34 @@ export function WholesalePage() {
   const [printFiles, setPrintFiles] = useState<File[] | null>(null);
   const [printIndex, setPrintIndex] = useState(0);
 
-  // Đổi danh sách phiếu (mở/đóng xem trước, đổi ngày) thì tạo lại tem
+  // Mở xem trước thì tạo sẵn tem ngay: navigator.share phải được gọi ngay
+  // trong cú bấm, chờ tạo ảnh sẽ bị lỗi "Must be handling a user gesture".
   useEffect(() => {
     setPrintFiles(null);
     setPrintIndex(0);
+    if (printTargets.length === 0) return;
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      const sheets = Array.from(
+        document.querySelectorAll<HTMLElement>("#print-area [data-print-sheet]"),
+      );
+      try {
+        const files: File[] = [];
+        for (const sheet of sheets) {
+          const blob = await elementToLabelPngBlob(sheet);
+          const name = `phieu-si-${sheet.dataset.printSheet}-${selectedDate}.png`;
+          files.push(new File([blob], name, { type: "image/png" }));
+        }
+        if (!cancelled) setPrintFiles(files);
+      } catch (e) {
+        if (!cancelled)
+          toast.error(e instanceof Error ? e.message : "Không tạo được phiếu in");
+      }
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [printTargets, selectedDate]);
 
   /**
@@ -218,41 +242,27 @@ export function WholesalePage() {
    * nên mỗi lần bấm sẽ gửi 1 tem (In phiếu 1/N, 2/N...).
    */
   async function handleSharePdf() {
+    const file = printFiles?.[printIndex];
+    if (!printFiles || !file) return;
     setSharing(true);
     try {
-      let files = printFiles;
-      if (!files) {
-        const sheets = Array.from(
-          document.querySelectorAll<HTMLElement>("#print-area [data-print-sheet]"),
-        );
-        if (sheets.length === 0) return;
-        files = [];
-        for (const sheet of sheets) {
-          const blob = await elementToLabelPngBlob(sheet);
-          const name = `phieu-si-${sheet.dataset.printSheet}-${selectedDate}.png`;
-          files.push(new File([blob], name, { type: "image/png" }));
-        }
-        setPrintFiles(files);
-      }
-
-      const file = files[printIndex];
-      if (!file) return;
+      // Không await gì trước share để giữ "user gesture"
       const r = await shareFilesToLabelExpert([file]);
       if (r === "cancelled") return; // giữ nguyên tem này để bấm in lại
 
       const next = printIndex + 1;
-      if (next >= files.length) {
+      if (next >= printFiles.length) {
         toast.success(
           r === "downloaded"
             ? "Đã tải ảnh phiếu về máy."
-            : `Đã gửi đủ ${files.length} phiếu sang máy in!`,
+            : `Đã gửi đủ ${printFiles.length} phiếu sang máy in!`,
         );
         setPrintIndex(0);
       } else {
         setPrintIndex(next);
       }
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Không tạo được phiếu in");
+      toast.error(e instanceof Error ? e.message : "Không in được phiếu");
     } finally {
       setSharing(false);
     }
@@ -488,15 +498,15 @@ export function WholesalePage() {
             </Button>
             <Button
               onClick={handleSharePdf}
-              disabled={sharing}
+              disabled={sharing || !printFiles}
               className="gap-2 bg-red-700 font-bold text-white hover:bg-red-800"
             >
-              {sharing ? (
+              {sharing || !printFiles ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (
                 <Printer className="size-4" />
               )}
-              {sharing ? "Đang tạo phiếu..." : printLabel}
+              {!printFiles ? "Đang chuẩn bị phiếu..." : printLabel}
             </Button>
           </div>
           </div>
