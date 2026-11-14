@@ -1,4 +1,6 @@
-import { Printer, X } from "lucide-react";
+import { useState } from "react";
+import { Loader2, Printer, X } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +21,7 @@ import {
 import { formatDateDisplay, formatMoney } from "@/lib/format";
 import { STATUS_BADGE_CLASSES, STATUS_LABELS } from "@/lib/constants";
 import { type Order, type Product } from "@/lib/types";
+import { elementToPdfBlob, sharePdfToLabelExpert } from "@/lib/label-expert";
 
 interface OrderDetailDialogProps {
   open: boolean;
@@ -33,7 +36,25 @@ export function OrderDetailDialog({
   products,
   onOpenChange,
 }: OrderDetailDialogProps) {
+  const [printing, setPrinting] = useState(false);
+
   if (!order) return null;
+
+  async function handlePrint() {
+    const el = document.getElementById("print-area");
+    if (!el || !order) return;
+    setPrinting(true);
+    try {
+      const blob = await elementToPdfBlob(el);
+      const r = await sharePdfToLabelExpert(blob, `don-${order.id}.pdf`);
+      if (r === "downloaded")
+        toast.info("Trình duyệt không hỗ trợ chia sẻ file, đã tải PDF về máy.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Không tạo được PDF");
+    } finally {
+      setPrinting(false);
+    }
+  }
 
   const productMap = new Map(products.map((p) => [p.id, p]));
   const items = Object.entries(order.items).filter(([, qty]) => qty > 0);
@@ -199,14 +220,17 @@ export function OrderDetailDialog({
             Đóng
           </Button>
           <Button
-  onClick={() => {
-    window.location.href = "labelexpert://print";
-  }}
-  className="gap-2 bg-emerald-600 font-bold text-white hover:bg-emerald-700"
->
-  <Printer className="size-4" />
-  In Phiếu Đặt Hàng
-</Button>
+            onClick={handlePrint}
+            disabled={printing}
+            className="gap-2 bg-emerald-600 font-bold text-white hover:bg-emerald-700"
+          >
+            {printing ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Printer className="size-4" />
+            )}
+            {printing ? "Đang tạo PDF..." : "In Phiếu Đặt Hàng"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
