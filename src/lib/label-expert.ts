@@ -172,6 +172,8 @@ export async function elementToPdfBlob(
 export const LABEL_DOTS = { width: 608, height: 800 };
 /** Lề trắng quanh nội dung, tính theo chấm in (~2mm) */
 const LABEL_PADDING_DOTS = 16;
+/** Khoảng cách từ mép trên giấy tới nội dung (~6mm), tránh chữ sát/mất ở đầu tem */
+const LABEL_PADDING_TOP_DOTS = 48;
 
 /**
  * Xuất phiếu thành ảnh PNG đúng kích thước tem (608×800 chấm @203dpi).
@@ -191,7 +193,10 @@ export async function elementToLabelPngBlob(
   // Fill đúng bề ngang 76mm trừ lề 2 bên, chiều cao theo nội dung
   const drawW = dots.width - LABEL_PADDING_DOTS * 2;
   const drawH = Math.round((img.height * drawW) / img.width);
-  const canvasH = Math.max(dots.height, drawH + LABEL_PADDING_DOTS * 2);
+  const canvasH = Math.max(
+    dots.height,
+    drawH + LABEL_PADDING_TOP_DOTS + LABEL_PADDING_DOTS,
+  );
 
   const canvas = document.createElement("canvas");
   canvas.width = dots.width;
@@ -203,7 +208,7 @@ export async function elementToLabelPngBlob(
   ctx.drawImage(
     source,
     LABEL_PADDING_DOTS,
-    LABEL_PADDING_DOTS,
+    LABEL_PADDING_TOP_DOTS,
     drawW,
     drawH,
   );
