@@ -203,30 +203,64 @@ export function WholesalePage() {
   }
 
   const [sharing, setSharing] = useState(false);
+  /** Ảnh tem đã tạo sẵn (mỗi mối 1 tem) + vị trí tem kế tiếp cần in */
+  const [printFiles, setPrintFiles] = useState<File[] | null>(null);
+  const [printIndex, setPrintIndex] = useState(0);
 
+  // Đổi danh sách phiếu (mở/đóng xem trước, đổi ngày) thì tạo lại tem
+  useEffect(() => {
+    setPrintFiles(null);
+    setPrintIndex(0);
+  }, [printTargets, selectedDate]);
+
+  /**
+   * In lần lượt từng tem: Label Expert chỉ nhận 1 file mỗi lần Share,
+   * nên mỗi lần bấm sẽ gửi 1 tem (In phiếu 1/N, 2/N...).
+   */
   async function handleSharePdf() {
-    const sheets = Array.from(
-      document.querySelectorAll<HTMLElement>("#print-area [data-print-sheet]"),
-    );
-    if (sheets.length === 0) return;
     setSharing(true);
     try {
-      // Mỗi mối chợ 1 tem riêng, gửi tất cả trong 1 lần Share
-      const files: File[] = [];
-      for (const sheet of sheets) {
-        const blob = await elementToLabelPngBlob(sheet);
-        const name = `phieu-si-${sheet.dataset.printSheet}-${selectedDate}.png`;
-        files.push(new File([blob], name, { type: "image/png" }));
+      let files = printFiles;
+      if (!files) {
+        const sheets = Array.from(
+          document.querySelectorAll<HTMLElement>("#print-area [data-print-sheet]"),
+        );
+        if (sheets.length === 0) return;
+        files = [];
+        for (const sheet of sheets) {
+          const blob = await elementToLabelPngBlob(sheet);
+          const name = `phieu-si-${sheet.dataset.printSheet}-${selectedDate}.png`;
+          files.push(new File([blob], name, { type: "image/png" }));
+        }
+        setPrintFiles(files);
       }
-      const r = await shareFilesToLabelExpert(files);
-      if (r === "downloaded")
-        toast.info("Trình duyệt không hỗ trợ chia sẻ file, đã tải ảnh phiếu về máy.");
+
+      const file = files[printIndex];
+      if (!file) return;
+      const r = await shareFilesToLabelExpert([file]);
+      if (r === "cancelled") return; // giữ nguyên tem này để bấm in lại
+
+      const next = printIndex + 1;
+      if (next >= files.length) {
+        toast.success(
+          r === "downloaded"
+            ? "Đã tải ảnh phiếu về máy."
+            : `Đã gửi đủ ${files.length} phiếu sang máy in!`,
+        );
+        setPrintIndex(0);
+      } else {
+        setPrintIndex(next);
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Không tạo được phiếu in");
     } finally {
       setSharing(false);
     }
   }
+
+  const printTotal = printTargets.length;
+  const printLabel =
+    printTotal > 1 ? `In phiếu ${printIndex + 1}/${printTotal}` : "In Ngay";
 
   function handlePrintAll() {
     const targets = marketsData
@@ -462,7 +496,7 @@ export function WholesalePage() {
               ) : (
                 <Printer className="size-4" />
               )}
-              {sharing ? "Đang tạo phiếu..." : "In Ngay"}
+              {sharing ? "Đang tạo phiếu..." : printLabel}
             </Button>
           </div>
           </div>
