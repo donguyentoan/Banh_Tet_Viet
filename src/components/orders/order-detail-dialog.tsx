@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { type Order, type Product } from "@/lib/types";
-import { elementToPdfBlob, sharePdfToLabelExpert } from "@/lib/label-expert";
+import { elementToLabelPngBlob, sharePdfToLabelExpert } from "@/lib/label-expert";
 import { OrderPrintSheet } from "@/components/orders/order-print-sheet";
 
 interface OrderDetailDialogProps {
@@ -35,12 +35,12 @@ export function OrderDetailDialog({
     if (!el || !order) return;
     setPrinting(true);
     try {
-      const blob = await elementToPdfBlob(el);
-      const r = await sharePdfToLabelExpert(blob, `don-${order.id}.pdf`);
+      const blob = await elementToLabelPngBlob(el);
+      const r = await sharePdfToLabelExpert(blob, `don-${order.id}.png`);
       if (r === "downloaded")
-        toast.info("Trình duyệt không hỗ trợ chia sẻ file, đã tải PDF về máy.");
+        toast.info("Trình duyệt không hỗ trợ chia sẻ file, đã tải ảnh phiếu về máy.");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Không tạo được PDF");
+      toast.error(e instanceof Error ? e.message : "Không tạo được phiếu in");
     } finally {
       setPrinting(false);
     }
@@ -78,7 +78,7 @@ export function OrderDetailDialog({
             ) : (
               <Printer className="size-4" />
             )}
-            {printing ? "Đang tạo PDF..." : "In Phiếu Đặt Hàng"}
+            {printing ? "Đang tạo phiếu..." : "In Phiếu Đặt Hàng"}
           </Button>
         </DialogFooter>
       </DialogContent>

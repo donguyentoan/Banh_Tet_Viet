@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ChevronDown, ChevronUp, Loader2, Plus, Printer, Store, X } from "lucide-react";
-import { elementToPdfBlob, sharePdfToLabelExpert } from "@/lib/label-expert";
+import { elementToLabelPngBlob, sharePdfToLabelExpert } from "@/lib/label-expert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -209,16 +209,16 @@ export function WholesalePage() {
     if (!el) return;
     setSharing(true);
     try {
-      const blob = await elementToPdfBlob(el);
+      const blob = await elementToLabelPngBlob(el);
       const name =
         printTargets.length === 1
-          ? `phieu-si-${printTargets[0].market.id}-${selectedDate}.pdf`
-          : `phieu-si-${selectedDate}.pdf`;
+          ? `phieu-si-${printTargets[0].market.id}-${selectedDate}.png`
+          : `phieu-si-${selectedDate}.png`;
       const r = await sharePdfToLabelExpert(blob, name);
       if (r === "downloaded")
-        toast.info("Trình duyệt không hỗ trợ chia sẻ file, đã tải PDF về máy.");
+        toast.info("Trình duyệt không hỗ trợ chia sẻ file, đã tải ảnh phiếu về máy.");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Không tạo được PDF");
+      toast.error(e instanceof Error ? e.message : "Không tạo được phiếu in");
     } finally {
       setSharing(false);
     }
@@ -455,7 +455,7 @@ export function WholesalePage() {
               ) : (
                 <Printer className="size-4" />
               )}
-              {sharing ? "Đang tạo PDF..." : "In Ngay"}
+              {sharing ? "Đang tạo phiếu..." : "In Ngay"}
             </Button>
           </div>
           </div>

@@ -162,8 +162,56 @@ export async function elementToPdfBlob(
   return pdf.output("blob");
 }
 
+/** Tem máy in nhiệt QR380A: 76×100mm, đầu in 203dpi (8 chấm/mm) */
+export const LABEL_DOTS = { width: 608, height: 800 };
+/** Lề trắng quanh nội dung, tính theo chấm in (~2mm) */
+const LABEL_PADDING_DOTS = 16;
+
 /**
- * Mở bảng Chia sẻ của hệ điều hành để gửi PDF sang Label Expert.
+ * Xuất phiếu thành ảnh PNG đúng kích thước tem (608×800 chấm @203dpi).
+ * Label Expert in ảnh 1 điểm ảnh = 1 chấm nên phiếu phủ kín tem và căn giữa,
+ * tránh lỗi PDF bị co nhỏ ~75% và dồn về góc trái khi in.
+ */
+export async function elementToLabelPngBlob(
+  el: HTMLElement,
+  dots: { width: number; height: number } = LABEL_DOTS,
+): Promise<Blob> {
+  const img = await trimWhitespace(await renderReceiptPng(el));
+  const source = new Image();
+  source.src = img.dataUrl;
+  await source.decode();
+
+  const maxW = dots.width - LABEL_PADDING_DOTS * 2;
+  const maxH = dots.height - LABEL_PADDING_DOTS * 2;
+  const scale = Math.min(maxW / img.width, maxH / img.height);
+  const drawW = Math.round(img.width * scale);
+  const drawH = Math.round(img.height * scale);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = dots.width;
+  canvas.height = dots.height;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(
+    source,
+    Math.round((dots.width - drawW) / 2),
+    Math.round((dots.height - drawH) / 2),
+    drawW,
+    drawH,
+  );
+
+  return new Promise((resolve, reject) =>
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error("Không tạo được ảnh phiếu"))),
+      "image/png",
+    ),
+  );
+}
+
+/**
+ * Mở bảng Chia sẻ của hệ điều hành để gửi file (PNG/PDF) sang Label Expert.
  * - Phải gọi trong sự kiện click/tap, trang chạy HTTPS.
  * - Web không chọn sẵn app đích được: người dùng chọn "Label Expert" trong bảng Share.
  * - Không hỗ trợ share file (desktop) -> tải PDF về máy.
@@ -172,7 +220,9 @@ export async function sharePdfToLabelExpert(
   blob: Blob,
   fileName = "label.pdf",
 ): Promise<ShareResult> {
-  const file = new File([blob], fileName, { type: "application/pdf" });
+  const file = new File([blob], fileName, {
+    type: blob.type || "application/pdf",
+  });
 
   if (navigator.canShare?.({ files: [file] })) {
     try {
