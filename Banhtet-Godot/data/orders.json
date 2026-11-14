@@ -1,0 +1,53 @@
+[
+  {
+    "customerName": "Chị Lan",
+    "phone": "0587962548",
+    "address": "Thôn 15",
+    "deliveryDate": "2026-11-12",
+    "deliveryTime": "Chiều (13:00 - 17:00)",
+    "items": {
+      "bc_chay": 3,
+      "bc_chay_lon": 2
+    },
+    "totalAmount": 650000,
+    "deposit": 500000,
+    "status": "Đang nấu/gói",
+    "notes": "",
+    "id": "TB2027-003",
+    "createdAt": "2026-11-12"
+  },
+  {
+    "customerName": "Chị Hồng",
+    "phone": "0963258745",
+    "address": "Xóm 1 Thôn 14",
+    "deliveryDate": "2026-11-12",
+    "deliveryTime": "Sáng (07:00 - 11:00)",
+    "items": {
+      "bc_chay_lon": 1,
+      "bt_chay": 2
+    },
+    "totalAmount": 480000,
+    "deposit": 0,
+    "status": "Đang nấu/gói",
+    "notes": "",
+    "id": "TB2027-002",
+    "createdAt": "2026-11-12"
+  },
+  {
+    "customerName": "Bà Phái",
+    "phone": "0577896652",
+    "address": "Xóm 1 Thôn 13",
+    "deliveryDate": "2026-11-12",
+    "deliveryTime": "Chiều (13:00 - 17:00)",
+    "items": {
+      "bc_thit": 2,
+      "bc_chay": 1
+    },
+    "totalAmount": 430000,
+    "deposit": 200000,
+    "status": "Đã giao",
+    "notes": "Nhiều mỡ , ít nếp",
+    "id": "TB2027-001",
+    "createdAt": "2026-11-12"
+  }
+]

@@ -1,0 +1,25 @@
+# Godot
+.godot/
+.import/
+export.cfg
+export_credentials.cfg
+
+# Build output
+build/
+*.apk
+*.aab
+*.idsig
+
+# Keystore - KHÔNG commit lên git (chứa ký app).
+# Nếu repo public hoặc định phát hành Google Play, tuyệt đối không push key.
+# Tạo keystore riêng cho máy bạn:
+#   keytool -keyalg RSA -keysize 2048 -validity 10000 -genkeypair \
+#     -alias banhtet2027 -keystore keystore/banhtet-release.keystore \
+#     -storepass <MAT_KHAU> -keypass <MAT_KHAU> \
+#     -dname "CN=Banh Tet Viet 2027, O=Banh Tet Viet, C=VN"
+keystore/
+*.keystore
+*.jks
+
+# OS
+.DS_Store

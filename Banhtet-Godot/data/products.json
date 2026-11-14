@@ -1,0 +1,72 @@
+[
+  {
+    "id": "bc_thit",
+    "name": "Bánh Chưng Thịt Mỡ Đậu Xanh",
+    "price": 150000,
+    "wholesalePrice": 120000,
+    "category": "CHUNG",
+    "code": "CM",
+    "icon": "banh-chung.png",
+    "weight": "1.5 kg"
+  },
+  {
+    "id": "bc_chay",
+    "name": "Bánh Chưng Chay Đậu Xanh",
+    "price": 130000,
+    "wholesalePrice": 105000,
+    "category": "CHUNG",
+    "code": "CC",
+    "icon": "banh-chung.png",
+    "weight": "1.5 kg"
+  },
+    {
+    "id": "bc_thit_lon",
+    "name": "Bánh Chưng Thịt Mỡ Đậu Xanh (Lớn)",
+    "price": 150000,
+    "wholesalePrice": 120000,
+    "category": "CHUNG",
+    "code": "CML",
+    "icon": "banh-chung.png",
+    "weight": "2.0 kg"
+  },
+  {
+    "id": "bc_chay_lon",
+    "name": "Bánh Chưng Chay Đậu Xanh (Lớn)",
+    "price": 130000,
+    "wholesalePrice": 105000,
+    "category": "CHUNG",
+    "code": "CCL",
+    "icon": "banh-chung.png",
+    "weight": "2.0 kg"
+  },
+  {
+    "id": "bt_thit",
+    "name": "Bánh Tét Thịt Mỡ Đậu Xanh",
+    "price": 160000,
+    "wholesalePrice": 128000,
+    "category": "TET",
+    "code": "TT",
+    "icon": "banh-tet.png",
+    "weight": "1.2 kg"
+  },
+  {
+    "id": "bt_ngot",
+    "name": "Bánh Tét Nhân Ngọt",
+    "price": 110000,
+    "wholesalePrice": 88000,
+    "category": "TET",
+    "code": "TN",
+    "icon": "banh-tet.png",
+    "weight": "1.0 kg"
+  },
+  {
+    "id": "bt_chay",
+    "name": "Bánh Tét Chay Đậu Xanh",
+    "price": 175000,
+    "wholesalePrice": 140000,
+    "category": "TET",
+    "code": "TC",
+    "icon": "banh-tet.png",
+    "weight": "1.2 kg"
+  }
+]

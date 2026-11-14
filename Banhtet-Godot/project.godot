@@ -1,0 +1,39 @@
+; Engine configuration file.
+; Bánh Tết Việt 2027 - app quản lý đơn hàng bánh Tết (Godot 4)
+
+config_version=5
+
+[application]
+
+config/name="Bánh Tết Việt 2027"
+config/description="Quản lý đơn hàng bánh Chưng - bánh Tét dịp Tết 2027"
+run/main_scene="res://scene/Main.tscn"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+config/icon="res://assets/icon.svg"
+
+[display]
+
+window/size/viewport_width=390
+window/size/viewport_height=844
+window/size/window_width_override=390
+window/size/window_height_override=844
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=1
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+renderer/rendering_method.web="gl_compatibility"
+textures/canvas_textures/default_texture_filter=1
+textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0.988235, 0.972549, 0.94902, 1)
+
+[android]
+
+permissions/internet=true
