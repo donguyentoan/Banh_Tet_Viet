@@ -199,12 +199,14 @@ export function OrderDetailDialog({
             Đóng
           </Button>
           <Button
-            onClick={() => window.print()}
-            className="gap-2 bg-emerald-600 font-bold text-white hover:bg-emerald-700"
-          >
-            <Printer className="size-4" />
-            In Phiếu Đặt Hàng
-          </Button>
+  onClick={() => {
+    window.location.href = "labelexpert://print";
+  }}
+  className="gap-2 bg-emerald-600 font-bold text-white hover:bg-emerald-700"
+>
+  <Printer className="size-4" />
+  In Phiếu Đặt Hàng
+</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
