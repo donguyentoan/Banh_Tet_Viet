@@ -24,6 +24,12 @@ var _http := HTTPRequest.new()
 
 func _ready() -> void:
 	add_child(_http)
+	# Bản web: gọi API cùng origin (nginx proxy /api -> Vercel) để trình duyệt
+	# tự quản lý cookie phiên (JS không đọc/gửi được header Cookie).
+	if OS.has_feature("web"):
+		var origin = JavaScriptBridge.eval("window.location.origin")
+		if origin is String and origin != "":
+			base_url = origin + "/api"
 
 
 ## Đặt URL API (dùng khi cài app với server khác)
@@ -34,10 +40,14 @@ func configure(url: String) -> void:
 ## Đăng nhập quản trị bằng mật khẩu, lưu cookie phiên để dùng cho các request ghi
 func login(password: String) -> bool:
 	var body := JSON.stringify({"password": password})
-	var headers := ["Content-Type: application/json"]
+	var headers: Array[String] = ["Content-Type: application/json"]
 	var response := await send_request("POST", "/auth/login", headers, body)
 	if response.get("status", 0) != 200:
 		return false
+	if OS.has_feature("web"):
+		# Trình duyệt giữ cookie HttpOnly, Godot không đọc được Set-Cookie
+		session_cookie = "browser"
+		return true
 	var cookies := str(response.get("cookies", ""))
 	if cookies != "":
 		session_cookie = cookies.split(";")[0]
@@ -114,10 +124,9 @@ func send_request(
 	var all_headers := PackedStringArray()
 	for h in headers:
 		all_headers.append(h)
-	if session_cookie != "":
+	if session_cookie != "" and not OS.has_feature("web"):
 		all_headers.append("Cookie: " + session_cookie)
 
-	_http.request_headers = all_headers
 	_http.timeout = 20.0
 
 	var http_method := HTTPClient.METHOD_GET

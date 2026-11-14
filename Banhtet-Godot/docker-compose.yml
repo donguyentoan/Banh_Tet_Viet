@@ -1,0 +1,5 @@
+services:
+  banhtet-web:
+    build: .
+    ports:
+      - "8080:80"

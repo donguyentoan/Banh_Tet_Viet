@@ -219,3 +219,20 @@ cat /tmp/qp.txt
 /tmp/Godot.app/Contents/MacOS/Godot --headless --path . --script smoke_test.gd
 cat /tmp/smoke.txt
 ```
+
+---
+
+## 9. Bản web chạy bằng Docker
+
+```bash
+cd Banhtet-Godot
+docker compose up -d --build     # -> http://localhost:8080
+```
+
+- `Dockerfile`: stage 1 dùng `barichello/godot-ci:4.3` export preset **Web**,
+  stage 2 là nginx phục vụ `build/web` (kèm header COOP/COEP).
+- `docker/nginx.conf` proxy `/api/*` -> `https://banh-tet-viet.vercel.app/api/*`
+  để API **cùng origin**: trình duyệt tự giữ cookie `tet_admin` (JS không đọc được
+  `Set-Cookie`), `api_client.gd` tự dùng `window.location.origin + "/api"` khi chạy web.
+- Font `assets/fonts/NotoColorEmoji.ttf` được gắn làm font dự phòng để emoji
+  hiển thị trên trình duyệt giống trên Android.
