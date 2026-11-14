@@ -237,25 +237,33 @@ export function WholesalePage() {
     };
   }, [printTargets, selectedDate]);
 
+  /** Trình duyệt có cho chia sẻ nhiều file trong 1 lần không */
+  const canShareAll =
+    !!printFiles &&
+    printFiles.length > 1 &&
+    typeof navigator !== "undefined" &&
+    !!navigator.canShare?.({ files: printFiles });
+
   /**
-   * In lần lượt từng tem: Label Expert chỉ nhận 1 file mỗi lần Share,
-   * nên mỗi lần bấm sẽ gửi 1 tem (In phiếu 1/N, 2/N...).
+   * Gửi tất cả tem trong 1 lần Share. Trình duyệt không hỗ trợ share nhiều
+   * file thì in lần lượt từng tem (In phiếu 1/N, 2/N...).
    */
   async function handleSharePdf() {
-    const file = printFiles?.[printIndex];
-    if (!printFiles || !file) return;
+    if (!printFiles || printFiles.length === 0) return;
+    const batch = canShareAll ? printFiles : [printFiles[printIndex]];
+    if (!batch[0]) return;
     setSharing(true);
     try {
       // Không await gì trước share để giữ "user gesture"
-      const r = await shareFilesToLabelExpert([file]);
-      if (r === "cancelled") return; // giữ nguyên tem này để bấm in lại
+      const r = await shareFilesToLabelExpert(batch);
+      if (r === "cancelled") return;
 
-      const next = printIndex + 1;
+      const next = canShareAll ? printFiles.length : printIndex + 1;
       if (next >= printFiles.length) {
         toast.success(
           r === "downloaded"
             ? "Đã tải ảnh phiếu về máy."
-            : `Đã gửi đủ ${printFiles.length} phiếu sang máy in!`,
+            : `Đã gửi ${printFiles.length} phiếu sang máy in!`,
         );
         setPrintIndex(0);
       } else {
@@ -270,7 +278,11 @@ export function WholesalePage() {
 
   const printTotal = printTargets.length;
   const printLabel =
-    printTotal > 1 ? `In phiếu ${printIndex + 1}/${printTotal}` : "In Ngay";
+    printTotal <= 1
+      ? "In Ngay"
+      : canShareAll || !printFiles
+        ? `In Tất Cả ${printTotal} Phiếu`
+        : `In phiếu ${printIndex + 1}/${printTotal}`;
 
   function handlePrintAll() {
     const targets = marketsData
