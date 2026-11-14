@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Gradient nền đỏ Tết nổi bật -->
+    <radialGradient id="tetBg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#D61C1C" />
+      <stop offset="100%" stop-color="#800000" />
+    </radialGradient>
+
+    <!-- Gradient màu lá dong -->
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2ECC71" />
+      <stop offset="50%" stop-color="#27AE60" />
+      <stop offset="100%" stop-color="#1E8449" />
+    </linearGradient>
+
+    <!-- Gradient màu lạt buộc & chữ vàng kim -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF176" />
+      <stop offset="50%" stop-color="#FBC02D" />
+      <stop offset="100%" stop-color="#F57F17" />
+    </linearGradient>
+
+    <!-- Hiệu ứng đổ bóng nhẹ -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Nền hình vuông bo góc hiện đại cho Favicon -->
+  <rect width="512" height="512" rx="100" fill="url(#tetBg)" />
+
+  <!-- Khung viền vàng may mắn -->
+  <rect x="16" y="16" width="480" height="480" rx="84" fill="none" stroke="url(#goldGrad)" stroke-width="6" opacity="0.6" />
+
+  <g filter="url(#shadow)">
+    <!-- BÁNH CHƯƠNG (Khối vuông xoay nhẹ nghiêng 3D) -->
+    <g transform="translate(256, 210)">
+      <!-- Thân bánh chưng -->
+      <rect x="-110" y="-110" width="220" height="220" rx="24" fill="url(#leafGrad)" stroke="#145A32" stroke-width="4" />
+      
+      <!-- Gân lá/chi tiết bề mặt bánh -->
+      <path d="M -110 -40 L 110 -40 M -110 40 L 110 40" stroke="#27AE60" stroke-width="3" opacity="0.5" />
+      <path d="M -40 -110 L -40 110 M 40 -110 L 40 110" stroke="#27AE60" stroke-width="3" opacity="0.5" />
+
+      <!-- Dây lạt buộc bánh (Nổi bật màu vàng) -->
+      <!-- Lạt dọc -->
+      <rect x="-45" y="-110" width="16" height="220" fill="url(#goldGrad)" />
+      <rect x="29" y="-110" width="16" height="220" fill="url(#goldGrad)" />
+      <!-- Lạt ngang -->
+      <rect x="-110" y="-45" width="220" height="16" fill="url(#goldGrad)" />
+      <rect x="-110" y="29" width="220" height="16" fill="url(#goldGrad)" />
+
+      <!-- Hoa mai trang trí ở tâm bánh -->
+      <circle cx="0" cy="0" r="28" fill="#D61C1C" />
+      <g fill="url(#goldGrad)">
+        <circle cx="0" cy="-18" r="12" />
+        <circle cx="17" cy="-5" r="12" />
+        <circle cx="11" cy="15" r="12" />
+        <circle cx="-11" cy="15" r="12" />
+        <circle cx="-17" cy="-5" r="12" />
+        <circle cx="0" cy="0" r="8" fill="#FFF" />
+      </g>
+    </g>
+
+    <!-- DÒNG CHỮ NĂM 2027 -->
+    <text x="256" y="425" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="76" fill="url(#goldGrad)" letter-spacing="4">2027</text>
+
+    <!-- Các Ngôi Sao / Hạt Kim Cương May Mắn -->
+    <path d="M 100 100 L 104 114 L 118 118 L 104 122 L 100 136 L 96 122 L 82 118 L 96 114 Z" fill="url(#goldGrad)" />
+    <path d="M 410 110 L 413 120 L 423 123 L 413 126 L 410 136 L 407 126 L 397 123 L 407 120 Z" fill="url(#goldGrad)" />
+  </g>
+</svg>

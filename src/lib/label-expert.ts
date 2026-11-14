@@ -3,10 +3,27 @@ import { jsPDF } from "jspdf";
 
 export type ShareResult = "shared" | "cancelled" | "downloaded";
 
+/** Khổ giấy nhiệt mặc định: rộng 76mm, chiều cao tự động theo nội dung */
+export const PAPER_WIDTH_MM = 76;
+/** Chiều cao tối thiểu của 1 trang giấy nhiệt 76mm */
+export const PAPER_MIN_HEIGHT_MM = 120;
+
 /**
- * Chụp một phần tử HTML (vd: #print-area) thành PDF khổ A4.
+ * Chụp một phần tử HTML (vd: #print-area) thành PDF khổ giấy nhiệt 76mm.
+ *
+ * - Bề rộng luôn = 76mm, khớp với khổ giấy của máy in bill.
+ * - Chiều cao trang được tính TOÁN theo chiều cao nội dung => phiếu luôn nằm
+ *   gọn trong MỘT trang liên tục, không bị cắt thành 2-3 trang như bản cũ
+ *   (máy in nhiệt tự cắt cuộn giấy đúng độ dài nội dung).
+ * - Nếu nội dung vẫn dài hơn khổ giấy, vẫn chia trang để không mất thông tin.
  */
-export async function elementToPdfBlob(el: HTMLElement): Promise<Blob> {
+export async function elementToPdfBlob(
+  el: HTMLElement,
+  options?: { widthMm?: number; minHeightMm?: number },
+): Promise<Blob> {
+  const widthMm = options?.widthMm ?? PAPER_WIDTH_MM;
+  const minHeightMm = options?.minHeightMm ?? PAPER_MIN_HEIGHT_MM;
+
   const dataUrl = await toPng(el, {
     pixelRatio: 2,
     backgroundColor: "#ffffff",
@@ -18,19 +35,38 @@ export async function elementToPdfBlob(el: HTMLElement): Promise<Blob> {
   img.src = dataUrl;
   await img.decode();
 
-  const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
-  const pageW = pdf.internal.pageSize.getWidth();
-  const pageH = pdf.internal.pageSize.getHeight();
-  const margin = 8;
-  const w = pageW - margin * 2;
-  const h = (img.height * w) / img.width;
+  // Tỉ lệ ảnh (chiều cao / chiều rộng)
+  const ratio = img.height / img.width;
+  const margin = 2;
+  const usableW = widthMm - margin * 2;
 
-  // Nếu nội dung dài hơn 1 trang thì cắt sang các trang tiếp theo
-  let offset = 0;
+  // Chiều cao nội dung quy đổi sang mm (khi fill đúng bề rộng giấy)
+  const contentH = usableW * ratio;
+  // Chiều cao trang = nội dung + 2 lần margin, tối thiểu là minHeightMm
+  const pageH = Math.max(minHeightMm, contentH + margin * 2);
+
+  const pdf = new jsPDF({
+    unit: "mm",
+    format: [widthMm, pageH],
+    orientation: "portrait",
+  });
+
+  const drawW = usableW;
+  const drawH = contentH;
+  const offsetX = margin;
+
+  // Nội dung vừa 1 trang -> in nguyên 1 trang (phần lớn các đơn hàng)
+  if (drawH <= pageH - margin * 2) {
+    pdf.addImage(dataUrl, "PNG", offsetX, margin, drawW, drawH);
+    return pdf.output("blob");
+  }
+
+  // Nội dung quá dài -> chia trang, không mất thông tin
   const usableH = pageH - margin * 2;
-  while (offset < h) {
-    if (offset > 0) pdf.addPage();
-    pdf.addImage(dataUrl, "PNG", margin, margin - offset, w, h);
+  let offset = 0;
+  while (offset < drawH) {
+    if (offset > 0) pdf.addPage([widthMm, pageH], "portrait");
+    pdf.addImage(dataUrl, "PNG", offsetX, margin - offset, drawW, drawH);
     offset += usableH;
   }
 
