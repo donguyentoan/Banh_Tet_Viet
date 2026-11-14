@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { ChevronDown, ChevronUp, Plus, Printer, Store, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2, Plus, Printer, Store, X } from "lucide-react";
+import { elementToPdfBlob, sharePdfToLabelExpert } from "@/lib/label-expert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -199,6 +200,28 @@ export function WholesalePage() {
     const market = marketsData.find((m) => m.id === marketId);
     if (!market) return;
     setPrintTargets([{ market, quantities: quantities[marketId] ?? {} }]);
+  }
+
+  const [sharing, setSharing] = useState(false);
+
+  async function handleSharePdf() {
+    const el = document.getElementById("print-area");
+    if (!el) return;
+    setSharing(true);
+    try {
+      const blob = await elementToPdfBlob(el);
+      const name =
+        printTargets.length === 1
+          ? `phieu-si-${printTargets[0].market.id}-${selectedDate}.pdf`
+          : `phieu-si-${selectedDate}.pdf`;
+      const r = await sharePdfToLabelExpert(blob, name);
+      if (r === "downloaded")
+        toast.info("Trình duyệt không hỗ trợ chia sẻ file, đã tải PDF về máy.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Không tạo được PDF");
+    } finally {
+      setSharing(false);
+    }
   }
 
   function handlePrintAll() {
@@ -423,11 +446,16 @@ export function WholesalePage() {
               Đóng
             </Button>
             <Button
-              onClick={() => window.print()}
+              onClick={handleSharePdf}
+              disabled={sharing}
               className="gap-2 bg-red-700 font-bold text-white hover:bg-red-800"
             >
-              <Printer className="size-4" />
-              In Ngay
+              {sharing ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Printer className="size-4" />
+              )}
+              {sharing ? "Đang tạo PDF..." : "In Ngay"}
             </Button>
           </div>
           </div>
