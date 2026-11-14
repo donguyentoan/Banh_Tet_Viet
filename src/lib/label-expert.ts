@@ -229,10 +229,21 @@ export async function sharePdfToLabelExpert(
   const file = new File([blob], fileName, {
     type: blob.type || "application/pdf",
   });
+  return shareFilesToLabelExpert([file]);
+}
 
-  if (navigator.canShare?.({ files: [file] })) {
+/**
+ * Chia sẻ nhiều file cùng lúc (vd: mỗi mối chợ 1 tem). Không hỗ trợ share
+ * nhiều file thì thử share từng file; không share được thì tải về máy.
+ */
+export async function shareFilesToLabelExpert(
+  files: File[],
+): Promise<ShareResult> {
+  if (files.length === 0) return "cancelled";
+
+  if (navigator.canShare?.({ files })) {
     try {
-      await navigator.share({ files: [file], title: fileName });
+      await navigator.share({ files, title: files[0].name });
       return "shared";
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return "cancelled";
@@ -240,13 +251,15 @@ export async function sharePdfToLabelExpert(
     }
   }
 
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = fileName;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  for (const file of files) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(file);
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  }
   return "downloaded";
 }
 

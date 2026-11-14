@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ChevronDown, ChevronUp, Loader2, Plus, Printer, Store, X } from "lucide-react";
-import { elementToLabelPngBlob, sharePdfToLabelExpert } from "@/lib/label-expert";
+import { elementToLabelPngBlob, shareFilesToLabelExpert } from "@/lib/label-expert";
+import { WholesalePrintSheet } from "@/components/wholesale/wholesale-print-sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +14,6 @@ import {
 } from "@/components/ui/select";
 import {
   DistributionTable,
-  WholesaleReceipt,
 } from "@/components/wholesale/distribution-table";
 import {
   MarketFormDialog,
@@ -205,16 +205,20 @@ export function WholesalePage() {
   const [sharing, setSharing] = useState(false);
 
   async function handleSharePdf() {
-    const el = document.getElementById("print-area");
-    if (!el) return;
+    const sheets = Array.from(
+      document.querySelectorAll<HTMLElement>("#print-area [data-print-sheet]"),
+    );
+    if (sheets.length === 0) return;
     setSharing(true);
     try {
-      const blob = await elementToLabelPngBlob(el);
-      const name =
-        printTargets.length === 1
-          ? `phieu-si-${printTargets[0].market.id}-${selectedDate}.png`
-          : `phieu-si-${selectedDate}.png`;
-      const r = await sharePdfToLabelExpert(blob, name);
+      // Mỗi mối chợ 1 tem riêng, gửi tất cả trong 1 lần Share
+      const files: File[] = [];
+      for (const sheet of sheets) {
+        const blob = await elementToLabelPngBlob(sheet);
+        const name = `phieu-si-${sheet.dataset.printSheet}-${selectedDate}.png`;
+        files.push(new File([blob], name, { type: "image/png" }));
+      }
+      const r = await shareFilesToLabelExpert(files);
       if (r === "downloaded")
         toast.info("Trình duyệt không hỗ trợ chia sẻ file, đã tải ảnh phiếu về máy.");
     } catch (e) {
@@ -427,13 +431,16 @@ export function WholesalePage() {
             </button>
           <div id="print-area" className="space-y-6">
             {printTargets.map((target) => (
-              <WholesaleReceipt
-                key={target.market.id}
-                market={target.market}
-                products={productsData}
-                quantities={target.quantities}
-                date={selectedDate}
-              />
+              <div key={target.market.id} className="print-sheet-host">
+                <div data-print-sheet={target.market.id} className="bg-white">
+                  <WholesalePrintSheet
+                    market={target.market}
+                    products={productsData}
+                    quantities={target.quantities}
+                    date={selectedDate}
+                  />
+                </div>
+              </div>
             ))}
           </div>
           <div className="no-print mt-4 flex justify-end gap-2 border-t border-gray-200 pt-3">
