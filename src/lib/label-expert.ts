@@ -48,8 +48,8 @@ async function renderReceiptPng(el: HTMLElement): Promise<string> {
     // Style phiếu nhiệt: nền trắng, chữ đen đậm, không bóng/viền màu
     const receiptStyle = doc.createElement("style");
     receiptStyle.textContent = `
-      html, body { margin:0; padding:0; background:#fff; width:${RENDER_WIDTH_PX}px; }
-      #receipt { width:${RENDER_WIDTH_PX}px; color:#000; font-size:12px; line-height:1.35; }
+      html, body { margin:0; padding:0; background:#fff; }
+      #receipt { width:${RENDER_WIDTH_PX}px; margin:0 auto; color:#000; font-size:12px; line-height:1.35; }
       #receipt * { box-shadow:none !important; text-shadow:none !important;
         background:transparent !important; color:#000 !important;
         border-color:#000 !important; max-width:100%; }
@@ -68,17 +68,69 @@ async function renderReceiptPng(el: HTMLElement): Promise<string> {
     await Promise.all(styleLoads);
     await doc.fonts?.ready;
 
-    iframe.style.height = `${wrapper.scrollHeight}px`;
+    // Lấy bề rộng thật (nội dung có thể tràn quá khổ) để không bị cắt mép phải
+    const fullW = Math.max(RENDER_WIDTH_PX, wrapper.scrollWidth);
+    const fullH = wrapper.scrollHeight;
+    iframe.style.width = `${fullW}px`;
+    iframe.style.height = `${fullH}px`;
 
     return await toPng(wrapper, {
       pixelRatio: 3, // ~ 203 dpi của đầu in nhiệt, nét chữ rõ
       backgroundColor: "#ffffff",
-      width: RENDER_WIDTH_PX,
-      height: wrapper.scrollHeight,
+      width: fullW,
+      height: fullH,
     });
   } finally {
     iframe.remove();
   }
+}
+
+/**
+ * Cắt bỏ viền trắng quanh ảnh để phần nội dung thật được căn giữa chính xác.
+ */
+async function trimWhitespace(
+  dataUrl: string,
+): Promise<{ dataUrl: string; width: number; height: number }> {
+  const img = new Image();
+  img.src = dataUrl;
+  await img.decode();
+
+  const canvas = document.createElement("canvas");
+  canvas.width = img.width;
+  canvas.height = img.height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return { dataUrl, width: img.width, height: img.height };
+  ctx.drawImage(img, 0, 0);
+  const { data, width, height } = ctx.getImageData(0, 0, img.width, img.height);
+
+  let top = height, left = width, right = -1, bottom = -1;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4;
+      // Điểm không phải trắng (ngưỡng 245)
+      if (data[i] < 245 || data[i + 1] < 245 || data[i + 2] < 245) {
+        if (x < left) left = x;
+        if (x > right) right = x;
+        if (y < top) top = y;
+        if (y > bottom) bottom = y;
+      }
+    }
+  }
+  if (right < 0) return { dataUrl, width: img.width, height: img.height };
+
+  const pad = 6;
+  left = Math.max(0, left - pad);
+  top = Math.max(0, top - pad);
+  right = Math.min(width - 1, right + pad);
+  bottom = Math.min(height - 1, bottom + pad);
+  const w = right - left + 1;
+  const h = bottom - top + 1;
+
+  const out = document.createElement("canvas");
+  out.width = w;
+  out.height = h;
+  out.getContext("2d")!.drawImage(canvas, left, top, w, h, 0, 0, w, h);
+  return { dataUrl: out.toDataURL("image/png"), width: w, height: h };
 }
 
 /**
@@ -91,12 +143,14 @@ export async function elementToPdfBlob(
   const widthMm = options?.widthMm ?? PAPER_WIDTH_MM;
   const dataUrl = await renderReceiptPng(el);
 
-  const img = new Image();
-  img.src = dataUrl;
-  await img.decode();
+  const img = await trimWhitespace(dataUrl);
 
-  const drawW = widthMm - MARGIN_X_MM * 2;
+  // Co vừa vùng in, căn giữa theo chiều ngang
+  const maxW = widthMm - MARGIN_X_MM * 2;
+  const naturalW = (img.width / 3) * (25.4 / 96); // px@3x -> mm
+  const drawW = Math.min(maxW, naturalW);
   const drawH = (drawW * img.height) / img.width;
+  const offsetX = (widthMm - drawW) / 2;
   const pageH = drawH + MARGIN_Y_MM * 2;
 
   const pdf = new jsPDF({
@@ -104,7 +158,7 @@ export async function elementToPdfBlob(
     format: [widthMm, pageH],
     orientation: pageH >= widthMm ? "portrait" : "landscape",
   });
-  pdf.addImage(dataUrl, "PNG", MARGIN_X_MM, MARGIN_Y_MM, drawW, drawH);
+  pdf.addImage(img.dataUrl, "PNG", offsetX, MARGIN_Y_MM, drawW, drawH);
   return pdf.output("blob");
 }
 
