@@ -54,6 +54,7 @@ async function renderReceiptPng(el: HTMLElement): Promise<string> {
         background:transparent !important; color:#000 !important;
         border-color:#000 !important; max-width:100%; }
       #receipt .no-print { display:none !important; }
+      #receipt > * { margin-left:0 !important; margin-right:0 !important; padding-left:0 !important; padding-right:0 !important; }
       #receipt table { width:100% !important; table-layout:auto; }
       #receipt th, #receipt td { padding:2px 3px !important; font-size:11px !important; }
       #receipt [class*="overflow-x"] { overflow:visible !important; }
@@ -90,6 +91,7 @@ async function renderReceiptPng(el: HTMLElement): Promise<string> {
  */
 async function trimWhitespace(
   dataUrl: string,
+  verticalOnly = false,
 ): Promise<{ dataUrl: string; width: number; height: number }> {
   const img = new Image();
   img.src = dataUrl;
@@ -118,6 +120,10 @@ async function trimWhitespace(
   }
   if (right < 0) return { dataUrl, width: img.width, height: img.height };
 
+  if (verticalOnly) {
+    left = 0;
+    right = width - 1;
+  }
   const pad = 6;
   left = Math.max(0, left - pad);
   top = Math.max(0, top - pad);
@@ -176,28 +182,28 @@ export async function elementToLabelPngBlob(
   el: HTMLElement,
   dots: { width: number; height: number } = LABEL_DOTS,
 ): Promise<Blob> {
-  const img = await trimWhitespace(await renderReceiptPng(el));
+  // Chỉ cắt trắng trên/dưới, giữ nguyên bề ngang layout để chữ trải đều khổ giấy
+  const img = await trimWhitespace(await renderReceiptPng(el), true);
   const source = new Image();
   source.src = img.dataUrl;
   await source.decode();
 
-  const maxW = dots.width - LABEL_PADDING_DOTS * 2;
-  const maxH = dots.height - LABEL_PADDING_DOTS * 2;
-  const scale = Math.min(maxW / img.width, maxH / img.height);
-  const drawW = Math.round(img.width * scale);
-  const drawH = Math.round(img.height * scale);
+  // Fill đúng bề ngang 76mm trừ lề 2 bên, chiều cao theo nội dung
+  const drawW = dots.width - LABEL_PADDING_DOTS * 2;
+  const drawH = Math.round((img.height * drawW) / img.width);
+  const canvasH = Math.max(dots.height, drawH + LABEL_PADDING_DOTS * 2);
 
   const canvas = document.createElement("canvas");
   canvas.width = dots.width;
-  canvas.height = dots.height;
+  canvas.height = canvasH;
   const ctx = canvas.getContext("2d")!;
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(
     source,
-    Math.round((dots.width - drawW) / 2),
-    Math.round((dots.height - drawH) / 2),
+    LABEL_PADDING_DOTS,
+    LABEL_PADDING_DOTS,
     drawW,
     drawH,
   );
