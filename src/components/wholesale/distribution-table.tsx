@@ -153,7 +153,7 @@ export function DistributionTable({
                         <input
                           type="number"
                           min={0}
-                          value={qty}
+                          value={qty || ""} placeholder="0" onFocus={(e) => e.currentTarget.select()}
                           onChange={(event) => {
                             const value = Number(event.target.value);
                             onChange(market.id, product.id, Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0);
@@ -230,7 +230,7 @@ export function DistributionTable({
                           <input
                             type="number"
                             min={0}
-                            value={qty}
+                            value={qty || ""} placeholder="0" onFocus={(e) => e.currentTarget.select()}
                             onChange={(event) => {
                               const value = Number(event.target.value);
                               onChange(

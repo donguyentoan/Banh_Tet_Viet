@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   AlertTriangle,
@@ -134,6 +134,11 @@ export function AnalyticsPage() {
     Record<string, number>
   >({});
 
+  // Đổi ngày thì bỏ các số đang nhập dở của ngày cũ
+  useEffect(() => {
+    setProducedInput({});
+  }, [selectedDate]);
+
   /** Giá trị nhập liệu: ưu tiên giá trị đang sửa, fallback sản lượng đã lưu */
   const producedQty = (productId: string) =>
     producedInput[productId] ?? productionToday?.items?.[productId] ?? 0;
@@ -146,13 +151,17 @@ export function AnalyticsPage() {
   }
 
   function handleSaveProduction() {
-    const items = Object.fromEntries(
-      Object.entries(producedInput).filter(([, qty]) => qty > 0),
-    );
-    if (Object.keys(items).length === 0) {
+    if (Object.keys(producedInput).length === 0) {
       toast.warning("Chưa nhập số lượng bánh nào đã nấu/gói xong!");
       return;
     }
+    // Gộp với số đã lưu của ngày này để không mất các sản phẩm không sửa
+    const items = Object.fromEntries(
+      Object.entries({
+        ...(productionToday?.items ?? {}),
+        ...producedInput,
+      }).filter(([, qty]) => qty > 0),
+    );
 
     saveProduction.mutate(
       { date: selectedDate, items },
@@ -464,7 +473,7 @@ export function AnalyticsPage() {
                     <input
                       type="number"
                       min={0}
-                      value={producedQty(product.id)}
+                      value={producedQty(product.id) || ""} placeholder="0" onFocus={(e) => e.currentTarget.select()}
                       onChange={(event) => {
                         const value = Number(event.target.value);
                         handleProducedChange(

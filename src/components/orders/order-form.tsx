@@ -1,3 +1,4 @@
+import { clearZeroOnFocus } from "@/lib/utils";
 import { useEffect, useId, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -307,6 +308,7 @@ export function OrderForm({
                   <Input
                     id={`qty-${product.id}`}
                     type="number"
+                  onFocus={clearZeroOnFocus}
                     min={0}
                     aria-label={`Số lượng ${product.name}`}
                     className="h-9 w-14 rounded-lg py-1 text-center text-sm font-bold"
@@ -486,6 +488,7 @@ export function OrderForm({
                 <Input
                   id="deposit"
                   type="number"
+                  onFocus={clearZeroOnFocus}
                   min={0}
                   step={10000}
                   className="w-full font-bold text-amber-700 sm:w-40"

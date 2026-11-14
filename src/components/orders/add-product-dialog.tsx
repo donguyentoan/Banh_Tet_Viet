@@ -1,3 +1,4 @@
+import { clearZeroOnFocus } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
@@ -130,6 +131,7 @@ export function AddProductDialog({
               <Input
                 id="product-price"
                 type="number"
+                  onFocus={clearZeroOnFocus}
                 min={0}
                 step={10000}
                 className="font-bold text-amber-700"

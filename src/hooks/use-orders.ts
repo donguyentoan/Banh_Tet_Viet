@@ -12,9 +12,11 @@ import {
   wholesaleApi,
 } from "@/lib/api";
 import type {
+  Inventory,
   Market,
   Order,
   Product,
+  Production,
   Wholesale,
 } from "@/lib/types";
 
@@ -201,8 +203,13 @@ export function useSaveProduction() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: productionApi.save,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: productionQueryKey });
+    // Ghi thẳng kết quả server trả về vào cache. Không refetch ngay vì Blob
+    // có cache ~60s, refetch dễ lấy bản cũ làm số vừa nhập bị "reset".
+    onSuccess: (saved) => {
+      queryClient.setQueryData<Production[]>(productionQueryKey, (prev = []) => {
+        const rest = prev.filter((p) => p.date !== saved.date);
+        return [saved, ...rest];
+      });
     },
   });
 }
@@ -229,8 +236,13 @@ export function useSaveInventory() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: inventoryApi.save,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: inventoryQueryKey });
+    // Ghi thẳng kết quả server trả về vào cache. Không refetch ngay vì Blob
+    // có cache ~60s, refetch dễ lấy bản cũ làm số vừa nhập bị "reset".
+    onSuccess: (saved) => {
+      queryClient.setQueryData<Inventory[]>(inventoryQueryKey, (prev = []) => {
+        const rest = prev.filter((p) => p.date !== saved.date);
+        return [saved, ...rest];
+      });
     },
   });
 }
