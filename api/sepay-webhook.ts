@@ -23,34 +23,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const rawOrderId = match[1]; // "TB2027004"
     const normalizedRaw = rawOrderId.replace(/-/g, '').toUpperCase();
 
-    // 1. Lấy file orders.json từ Vercel Blob (giả định đường dẫn blob là 'orders.json' hoặc URL tương ứng)
-    // Nếu bạn lưu đường dẫn dạng tên file trong store, hãy truyền đúng path/url của Blob.
     const blobPath = 'orders.json'; 
+    let fileJsonData: any = null;
     let orders: any[] = [];
-    let blobExists = false;
 
     try {
       const blobResponse = await get(blobPath, { access: 'public' });
       if (blobResponse && blobResponse.url) {
         const fetchRes = await fetch(blobResponse.url);
         if (fetchRes.ok) {
-          orders = await fetchRes.json();
-          blobExists = true;
+          fileJsonData = await fetchRes.json();
+          
+          // Xử lý linh hoạt cấu trúc file: có thể là Array trực tiếp hoặc Object chứa mảng (VD: { orders: [...] })
+          if (Array.isArray(fileJsonData)) {
+            orders = fileJsonData;
+          } else if (fileJsonData && Array.isArray(fileJsonData.orders)) {
+            orders = fileJsonData.orders;
+          } else if (fileJsonData && Array.isArray(fileJsonData.data)) {
+            orders = fileJsonData.data;
+          }
         }
       }
     } catch (err) {
-      console.log('Chưa tìm thấy file orders.json trên Vercel Blob, sẽ tạo mới nếu cần.');
+      console.log('Lỗi khi đọc file orders.json từ Vercel Blob:', err);
     }
 
     let orderFound = false;
+    
+    // Duyệt qua danh sách đơn hàng và so sánh chuẩn hóa (bỏ dấu gạch ngang, upper case)
     orders = orders.map((order: any) => {
+      // Hỗ trợ kiểm tra các trường id, orderId, hoặc code
       const orderIdInFile = (order.id || order.orderId || order.code || '').toString();
       const normalizedFileId = orderIdInFile.replace(/-/g, '').toUpperCase();
 
-      // So khớp linh hoạt giữa "TB2027-004" và "TB2027004"
-      if (normalizedFileId.includes(normalizedRaw) || normalizedRaw.includes(normalizedFileId)) {
+      if (normalizedFileId === normalizedRaw || normalizedFileId.includes(normalizedRaw) || normalizedRaw.includes(normalizedFileId)) {
         orderFound = true;
-        order.status = 'Đã giao'; // Hoặc 'Đã giao' tùy ý bạn
+        order.status = 'Đã thanh toán'; // Cập nhật trạng thái đơn
         order.paidAmount = transferAmount;
         order.paidAt = new Date().toISOString();
       }
@@ -58,19 +66,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     if (orderFound) {
-      // 2. Ghi đè lại file orders.json lên Vercel Blob
-      await put(blobPath, JSON.stringify(orders, null, 2), {
+      // Giữ nguyên cấu trúc dữ liệu ban đầu của file khi ghi ngược lại lên Vercel Blob
+      let dataToSave: any = orders;
+      if (!Array.isArray(fileJsonData)) {
+        if (fileJsonData && typeof fileJsonData === 'object') {
+          if (Array.isArray(fileJsonData.orders)) {
+            fileJsonData.orders = orders;
+          } else if (Array.isArray(fileJsonData.data)) {
+            fileJsonData.data = orders;
+          }
+          dataToSave = fileJsonData;
+        }
+      }
+
+      await put(blobPath, JSON.stringify(dataToSave, null, 2), {
         access: 'public',
         contentType: 'application/json',
-        addRandomSuffix: false, // Giữ nguyên tên file không bị sinh hash ngẫu nhiên phía sau
+        addRandomSuffix: false,
       });
-      console.log(`Đã cập nhật thành công đơn hàng khớp với: ${rawOrderId}`);
+
+      console.log(`Đã cập nhật thành công đơn hàng khớp với mã: ${rawOrderId}`);
+      return res.status(200).json({ success: true, message: 'Webhook processed and order updated successfully' });
     } else {
-      console.log(`Không tìm thấy order khớp với: ${rawOrderId}`);
+      console.log(`Không tìm thấy đơn hàng nào khớp với mã: ${rawOrderId}`);
       return res.status(200).json({ success: true, message: 'Không tìm thấy đơn hàng tương ứng trong hệ thống.' });
     }
 
-    return res.status(200).json({ success: true, message: 'Webhook processed and Blob updated successfully' });
   } catch (error: any) {
     console.error('SePay Webhook Vercel Blob Error:', error);
     return res.status(500).json({ success: false, error: error.message });
