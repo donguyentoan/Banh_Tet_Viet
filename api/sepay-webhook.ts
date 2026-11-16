@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import fs from 'fs';
 import path from 'path';
-
+import { updateOrder } from '@/hooks/useOrder';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
@@ -44,12 +44,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return order;
       });
 
+      updateOrder.mutate(
+        { id: orderId, payload: { status: 'PAID', paidAmount: transferAmount, paidAt: new Date().toISOString() } },
+        {
+          onSuccess: () => {
+            return res.status(200).json({ success: true, message: `Đã cập nhật đơn hàng #${orderId}` });
+          },
+          onError: (err: any) => {
+            return res.status(500).json({ success: false, error: err.message });
+          },
+        },
+      );
+
       if (orderFound) {
         fs.writeFileSync(filePath, JSON.stringify(orders, null, 2), 'utf8');
       }
     }
-
-    return res.status(200).json({ success: true, message: 'Webhook processed successfully' });
   } catch (error: any) {
     console.error('SePay Webhook Error:', error);
     return res.status(500).json({ success: false, error: error.message });
