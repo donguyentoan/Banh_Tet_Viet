@@ -231,8 +231,87 @@ function jsonApiPlugin(): Plugin {
   };
 }
 
+/**
+ * Dev/preview middleware: proxy ảnh QR VietQR qua chính server dev.
+ *
+ * VietQR chặn CORS nên trình duyệt không fetch/đọc được pixel ảnh khi render
+ * trực tiếp từ domain họ -> `html-to-image` chụp phiếu ra ô trống.
+ * Proxy cùng origin giúp ảnh hiển thị và in được ổn định.
+ *
+ * Trên Vercel, endpoint tương ứng nằm ở `api/sepay-qr.ts`.
+ */
+function sepayQrProxyPlugin(): Plugin {
+  const handler: Connect.NextHandleFunction = async (req, res, next) => {
+    const url = new URL(req.url ?? "/", "http://localhost");
+    if (url.pathname !== "/api/sepay-qr") return next();
+
+    const target = url.searchParams.get("url");
+    if (!target) {
+      res.statusCode = 400;
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.end(JSON.stringify({ message: "Thiếu tham số url." }));
+      return;
+    }
+
+    let parsed: URL;
+    try {
+      parsed = new URL(target);
+    } catch {
+      res.statusCode = 400;
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.end(JSON.stringify({ message: "URL không hợp lệ." }));
+      return;
+    }
+
+    // Chỉ cho phép proxy tới VietQR để tránh thành SSRF endpoint mở.
+    if (!/(^|\.)vietqr\.app$/i.test(parsed.hostname)) {
+      res.statusCode = 400;
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.end(JSON.stringify({ message: "Chỉ hỗ trợ ảnh từ vietqr.app." }));
+      return;
+    }
+
+    try {
+      const upstream = await fetch(parsed.toString(), {
+        headers: { Accept: "image/png,image/*" },
+      });
+      if (!upstream.ok) throw new Error(`HTTP ${upstream.status}`);
+
+      const contentType = upstream.headers.get("content-type") ?? "image/png";
+      if (!contentType.startsWith("image/")) throw new Error("Không phải ảnh");
+
+      const buffer = Buffer.from(await upstream.arrayBuffer());
+      res.statusCode = 200;
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Cache-Control", "public, max-age=300");
+      res.setHeader("Content-Length", String(buffer.byteLength));
+      res.end(buffer);
+    } catch (error) {
+      console.error("[sepay-qr] Lỗi proxy ảnh QR:", error);
+      res.statusCode = 502;
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.end(JSON.stringify({ message: "Không tải được ảnh QR." }));
+    }
+  };
+
+  return {
+    name: "bakery-sepay-qr-proxy",
+    configureServer(server) {
+      server.middlewares.use(handler);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(handler);
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), tailwindcss(), jsonApiPlugin()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    jsonApiPlugin(),
+    sepayQrProxyPlugin(),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(rootDir, "src"),

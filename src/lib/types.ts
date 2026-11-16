@@ -101,6 +101,14 @@ export const orderSchema = z.object({
   status: z.enum(ORDER_STATUSES),
   notes: z.string().optional().default(""),
   createdAt: z.string(),
+  /** Trạng thái thanh toán (do webhook SePay cập nhật) */
+  paymentStatus: z.string().optional(),
+  /** Tổng số tiền khách đã chuyển khoản */
+  paidAmount: z.number().optional(),
+  /** Thời điểm thanh toán gần nhất */
+  paidAt: z.string().optional(),
+  /** Mã giao dịch ngân hàng */
+  paymentReference: z.string().optional(),
 });
 
 export type Order = z.infer<typeof orderSchema>;

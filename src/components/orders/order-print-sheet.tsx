@@ -1,6 +1,7 @@
-import { formatDateDisplay, formatMoney } from "@/lib/format";
+import { formatDateDisplay, formatMoney, getRemaining } from "@/lib/format";
 import { STATUS_LABELS } from "@/lib/constants";
 import { type Order, type Product } from "@/lib/types";
+import { SEPAY_PAYMENT_STATUS_PAID } from "@/lib/sepay";
 import { SePayCheckout } from "./SePayCheckout";
 
 interface OrderPrintSheetProps {
@@ -20,7 +21,11 @@ interface OrderPrintSheetProps {
 export function OrderPrintSheet({ order, products }: OrderPrintSheetProps) {
   const productMap = new Map(products.map((p) => [p.id, p]));
   const items = Object.entries(order.items).filter(([, qty]) => qty > 0);
-  const remaining = order.totalAmount - order.deposit;
+  const remaining = getRemaining(order);
+  const isPaid =
+    (order as { paymentStatus?: string }).paymentStatus ===
+    SEPAY_PAYMENT_STATUS_PAID;
+  const statusLabel = STATUS_LABELS[order.status] ?? order.status;
 
   return (
     <div className="print-sheet bg-white text-gray-900">
@@ -56,7 +61,12 @@ export function OrderPrintSheet({ order, products }: OrderPrintSheetProps) {
           bold
           accent
         />
-        <Row label="Trạng thái" value={STATUS_LABELS[order.status] ?? order.status} />
+        <Row
+          label="Trạng thái"
+          value={`${stripEmoji(statusLabel)}${isPaid ? " - Đã thanh toán" : ""}`}
+          bold={isPaid}
+          accent={isPaid}
+        />
       </section>
 
       {/* ---------------- Sản phẩm đã đặt (dạng dòng gọn, không dùng table) ---------------- */}
@@ -125,7 +135,11 @@ export function OrderPrintSheet({ order, products }: OrderPrintSheetProps) {
           </p>
         ) : null}
       </section>
-       <SePayCheckout orderId={order.id} amount={remaining} />
+
+      {/* ---------------- QR thanh toán ---------------- */}
+      <div className="py-2">
+        <SePayCheckout orderId={order.id} amount={remaining} />
+      </div>
 
       {/* ---------------- Chữ ký ---------------- */}
       <section className="grid grid-cols-2 gap-3 pt-2 text-center text-[11px] text-gray-600">
@@ -176,4 +190,12 @@ function SignatureBlock({ title, hint }: { title: string; hint: string }) {
       <p className="mt-0.5 italic">{hint}</p>
     </div>
   );
+}
+
+/**
+ * Bỏ emoji khỏi nhãn trạng thái. Phiếu in nhiệt 76mm không in được emoji
+ * (ra ô vuông/đen), nên trên giấy chỉ hiện chữ.
+ */
+function stripEmoji(value: string): string {
+  return value.replace(/\p{Extended_Pictographic}|\p{Emoji_Presentation}|\uFE0F/gu, "").trim();
 }

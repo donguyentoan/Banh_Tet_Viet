@@ -20,6 +20,25 @@ interface OrderDetailDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+/**
+ * Chờ mọi ảnh trong vùng in (QR VietQR tải từ Internet) nạp xong trước khi
+ * chụp, nếu không ảnh phiếu sẽ bị thiếu QR.
+ */
+async function waitForImages(root: HTMLElement, timeoutMs = 5000) {
+  const images = Array.from(root.querySelectorAll("img"));
+  await Promise.all(
+    images.map((img) => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise<void>((resolve) => {
+        const done = () => resolve();
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+        setTimeout(done, timeoutMs);
+      });
+    }),
+  );
+}
+
 export function OrderDetailDialog({
   open,
   order,
@@ -41,6 +60,9 @@ export function OrderDetailDialog({
       const el = document.getElementById("print-area");
       if (!el) return;
       try {
+        // Ảnh QR thanh toán tải từ VietQR - phải chờ ảnh sẵn sàng thì mới
+        // chụp, nếu không phiếu in sẽ ra ô trống/không có QR.
+        await waitForImages(el);
         const blob = await elementToLabelPngBlob(el);
         if (!cancelled)
           setLabelFile(new File([blob], `don-${order.id}.png`, { type: "image/png" }));

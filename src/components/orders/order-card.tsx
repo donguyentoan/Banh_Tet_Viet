@@ -25,6 +25,7 @@ import {
   type OrderStatus,
   type Product,
 } from "@/lib/types";
+import { SEPAY_PAYMENT_STATUS_PAID } from "@/lib/sepay";
 
 const STATUS_ITEMS = Object.fromEntries(
   ORDER_STATUSES.map((status) => [status, STATUS_LABELS[status]]),
@@ -69,6 +70,7 @@ export function OrderCard({
 
   const remaining = getRemaining(order);
   const isCancelled = order.status === "Đã hủy";
+  const isPaid = order.paymentStatus === SEPAY_PAYMENT_STATUS_PAID;
 
   return (
     <div
@@ -113,6 +115,11 @@ export function OrderCard({
            <Badge className={`shrink-0 border text-[11px] font-bold ${STATUS_BADGE_CLASSES[order.status] ?? ""}`}>
           {STATUS_LABELS[order.status] ?? order.status}
         </Badge>
+        {isPaid ? (
+          <Badge className="mt-1 shrink-0 border border-emerald-300 bg-emerald-50 text-[10px] font-bold text-emerald-700">
+            💳 Đã thanh toán
+          </Badge>
+        ) : null}
         {order.phone !== "" ? (
            <Button
             variant="ghost"
