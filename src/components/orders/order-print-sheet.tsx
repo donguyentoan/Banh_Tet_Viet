@@ -1,6 +1,7 @@
 import { formatDateDisplay, formatMoney } from "@/lib/format";
 import { STATUS_LABELS } from "@/lib/constants";
 import { type Order, type Product } from "@/lib/types";
+import { SePayCheckout } from "./SePayCheckout";
 
 interface OrderPrintSheetProps {
   order: Order;
@@ -134,6 +135,7 @@ export function OrderPrintSheet({ order, products }: OrderPrintSheetProps) {
       <p className="mt-1 text-center text-[10px] text-gray-500">
         Cảm ơn quý khách! Hẹn giao bánh đúng ngày 🌺
       </p>
+      <SePayCheckout orderId={order.id} amount={remaining} />
     </div>
   );
 }

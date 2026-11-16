@@ -1,5 +1,13 @@
 [
   {
+    "name": "Bánh Chưng Lá Dong",
+    "price": 10000,
+    "category": "CHUNG",
+    "icon": "/banh-chung.png",
+    "weight": "1.0 kg",
+    "id": "banh_chung_la_dong"
+  },
+  {
     "id": "bc_thit",
     "name": "Bánh Chưng Thịt Mỡ Đậu Xanh",
     "price": 150000,
@@ -19,7 +27,7 @@
     "icon": "banh-chung.png",
     "weight": "1.5 kg"
   },
-    {
+  {
     "id": "bc_thit_lon",
     "name": "Bánh Chưng Thịt Mỡ Đậu Xanh (Lớn)",
     "price": 150000,
