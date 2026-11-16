@@ -1,6 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import fs from 'fs';
-import path from 'path';
+import { get, put } from '@vercel/blob';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -9,49 +8,71 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const webhookData = req.body;
-    
-    // Lấy đúng tên trường transferAmount từ SePay JSON
     const { transferAmount, content } = webhookData;
 
     if (!content) {
       return res.status(400).json({ success: false, message: 'Invalid content' });
     }
 
-    // Cập nhật Regex để bắt cả chữ và số sau chữ TET (Ví dụ: TETTB2027004 -> bắt được "TB2027004" hoặc "TB2027004")
-    // Hoặc nếu mã đơn của bạn dạng TET + [Chữ/Số], dùng: /TET([A-Za-z0-9]+)/i
+    // Bắt mã đơn hàng sau chữ TET (Ví dụ: TETTB2027004 -> "TB2027004")
     const match = content.match(/TET([A-Za-z0-9]+)/i);
     if (!match) {
       return res.status(200).json({ success: true, message: 'Không tìm thấy mã đơn hàng phù hợp, bỏ qua.' });
     }
 
-    const orderId = match[1]; // Sẽ bắt được "TB2027004" (hoặc điều chỉnh lại nếu bạn muốn lấy trọn gói "TETTB2027004")
+    const rawOrderId = match[1]; // "TB2027004"
+    const normalizedRaw = rawOrderId.replace(/-/g, '').toUpperCase();
 
-    // Đọc file orders.json
-    const filePath = path.join(process.cwd(), 'data', 'orders.json');
-    if (fs.existsSync(filePath)) {
-      const fileData = fs.readFileSync(filePath, 'utf8');
-      let orders = JSON.parse(fileData);
+    // 1. Lấy file orders.json từ Vercel Blob (giả định đường dẫn blob là 'orders.json' hoặc URL tương ứng)
+    // Nếu bạn lưu đường dẫn dạng tên file trong store, hãy truyền đúng path/url của Blob.
+    const blobPath = 'orders.json'; 
+    let orders: any[] = [];
+    let blobExists = false;
 
-      let orderFound = false;
-      orders = orders.map((order: any) => {
-        // So khớp orderId trong file json (hỗ trợ cả dạng id số hoặc mã đơn dạng string)
-        if (order.id == orderId || order.orderId == orderId || order.code == `TET${orderId}`) {
-          orderFound = true;
-          order.status = 'Đã giao';
-          order.paidAmount = transferAmount; // Gán đúng số tiền chuyển khoản
-          order.paidAt = new Date().toISOString();
+    try {
+      const blobResponse = await get(blobPath, { access: 'public' });
+      if (blobResponse && blobResponse.url) {
+        const fetchRes = await fetch(blobResponse.url);
+        if (fetchRes.ok) {
+          orders = await fetchRes.json();
+          blobExists = true;
         }
-        return order;
-      });
-
-      if (orderFound) {
-        fs.writeFileSync(filePath, JSON.stringify(orders, null, 2), 'utf8');
       }
+    } catch (err) {
+      console.log('Chưa tìm thấy file orders.json trên Vercel Blob, sẽ tạo mới nếu cần.');
     }
 
-    return res.status(200).json({ success: true, message: 'Webhook processed successfully' });
+    let orderFound = false;
+    orders = orders.map((order: any) => {
+      const orderIdInFile = (order.id || order.orderId || order.code || '').toString();
+      const normalizedFileId = orderIdInFile.replace(/-/g, '').toUpperCase();
+
+      // So khớp linh hoạt giữa "TB2027-004" và "TB2027004"
+      if (normalizedFileId.includes(normalizedRaw) || normalizedRaw.includes(normalizedFileId)) {
+        orderFound = true;
+        order.status = 'Đã giao'; // Hoặc 'Đã giao' tùy ý bạn
+        order.paidAmount = transferAmount;
+        order.paidAt = new Date().toISOString();
+      }
+      return order;
+    });
+
+    if (orderFound) {
+      // 2. Ghi đè lại file orders.json lên Vercel Blob
+      await put(blobPath, JSON.stringify(orders, null, 2), {
+        access: 'public',
+        contentType: 'application/json',
+        addRandomSuffix: false, // Giữ nguyên tên file không bị sinh hash ngẫu nhiên phía sau
+      });
+      console.log(`Đã cập nhật thành công đơn hàng khớp với: ${rawOrderId}`);
+    } else {
+      console.log(`Không tìm thấy order khớp với: ${rawOrderId}`);
+      return res.status(200).json({ success: true, message: 'Không tìm thấy đơn hàng tương ứng trong hệ thống.' });
+    }
+
+    return res.status(200).json({ success: true, message: 'Webhook processed and Blob updated successfully' });
   } catch (error: any) {
-    console.error('SePay Webhook Error:', error);
+    console.error('SePay Webhook Vercel Blob Error:', error);
     return res.status(500).json({ success: false, error: error.message });
   }
 }
