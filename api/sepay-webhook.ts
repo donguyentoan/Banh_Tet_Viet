@@ -18,6 +18,7 @@ const BLOB_ACCESS = "private" as const;
  * sẽ từ chối và UI hiển thị "undefined".
  */
 const STATUS_DEPOSITED = "Đã cọc";
+const STATUS_PAID = "Đã thanh toán";
 
 /** Trạng thái cho biết đơn đã thanh toán đủ (để UI/báo cáo nhận ra). */
 const PAYMENT_STATUS_PAID = SEPAY_PAYMENT_STATUS_PAID;
@@ -170,13 +171,12 @@ export default async function handler(
 
       // Chỉ dùng trạng thái nằm trong ORDER_STATUSES.
       //
-      // Lưu ý nghiệp vụ: khách trả tiền KHÔNG đồng nghĩa với đơn đã giao.
-      // "Đã giao" chỉ được đặt khi bánh được giao thực tế. Vì vậy:
-      //  - Đã trả đủ  -> giữ trạng thái hiện tại, chỉ đánh dấu paymentStatus.
-      //  - Trả một phần -> chuyển sang "Đã cọc".
-      if (outstanding > 0) {
-        updated.status = STATUS_DEPOSITED;
-      }
+      // Lưu ý nghiệp vụ:
+      //  - Trả một phần -> "Đã cọc" (đã đặt cọc nhưng chưa trả đủ).
+      //  - Trả đủ       -> "Đã thanh toán" (đã trả hết tiền bánh).
+      //  - "Đã giao" KHÔNG được đặt ở đây vì đó là hành động giao hàng
+      //    thực tế, khách trả tiền không đồng nghĩa với đã giao.
+      updated.status = outstanding > 0 ? STATUS_DEPOSITED : STATUS_PAID;
 
       // Cập nhật tiền cọc cho khớp số tiền đã trả (giới hạn trong tổng).
       updated.deposit = Math.min(totalAmount, Math.max(deposit, paidAmount));

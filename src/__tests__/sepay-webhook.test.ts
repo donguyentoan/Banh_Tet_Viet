@@ -30,8 +30,8 @@ function simulateWebhook(
       paymentStatus: SEPAY_PAYMENT_STATUS_PAID,
     };
 
-    // Trả đủ -> giữ trạng thái, trả một phần -> "Đã cọc"
-    if (outstanding > 0) next.status = "Đã cọc";
+    // Trả đủ -> "Đã thanh toán", trả một phần -> "Đã cọc"
+    next.status = outstanding > 0 ? "Đã cọc" : "Đã thanh toán";
 
     next.deposit = Math.min(totalAmount, Math.max(deposit, paidAmount));
     return next;
@@ -78,11 +78,12 @@ describe("webhook cập nhật trạng thái đơn", () => {
     expect(order.paymentStatus).toBe(SEPAY_PAYMENT_STATUS_PAID);
   });
 
-  it("trả đủ phần còn lại -> giữ nguyên trạng thái (không tự đánh dấu đã giao)", () => {
+  it("trả đủ phần còn lại -> chuyển sang 'Đã thanh toán' (không đánh dấu đã giao)", () => {
     const { orders } = simulateWebhook(BASE_ORDERS, "TETTB2027-003", 150000);
     const order = orders[0];
 
-    expect(order.status).toBe("Đang nấu/gói");
+    expect(order.status).toBe("Đã thanh toán");
+    expect(order.status).not.toBe("Đã giao");
     expect(order.deposit).toBe(650000);
     expect(order.paidAmount).toBe(650000);
   });
@@ -116,6 +117,7 @@ describe("webhook cập nhật trạng thái đơn", () => {
     // 500.000 (cọc trước) + 100.000 + 50.000 = 650.000
     expect(second.orders[0].paidAmount).toBe(650000);
     expect(second.orders[0].deposit).toBe(650000);
+    expect(second.orders[0].status).toBe("Đã thanh toán");
   });
 
   it("nội dung không có mã đơn -> bỏ qua an toàn", () => {

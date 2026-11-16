@@ -1,5 +1,5 @@
 import { formatDateDisplay, formatMoney, getRemaining } from "@/lib/format";
-import { STATUS_LABELS } from "@/lib/constants";
+import { STATUS_LABELS, STATUS_PAID } from "@/lib/constants";
 import { type Order, type Product } from "@/lib/types";
 import { SEPAY_PAYMENT_STATUS_PAID } from "@/lib/sepay";
 import { SePayCheckout } from "./SePayCheckout";
@@ -63,7 +63,9 @@ export function OrderPrintSheet({ order, products }: OrderPrintSheetProps) {
         />
         <Row
           label="Trạng thái"
-          value={`${stripEmoji(statusLabel)}${isPaid ? " - Đã thanh toán" : ""}`}
+          value={`${stripEmoji(statusLabel)}${
+            isPaid && order.status !== STATUS_PAID ? " - Đã thanh toán" : ""
+          }`}
           bold={isPaid}
           accent={isPaid}
         />

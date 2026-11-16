@@ -4,6 +4,7 @@ export const ORDER_STATUSES = [
   "Mới đặt",
   "Đã cọc",
   "Đang nấu/gói",
+  "Đã thanh toán",
   "Đã giao",
   "Đã hủy",
 ] as const;

@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatDateDisplay, formatMoney, getRemaining } from "@/lib/format";
-import { STATUS_BADGE_CLASSES, STATUS_LABELS } from "@/lib/constants";
+import { STATUS_BADGE_CLASSES, STATUS_LABELS, STATUS_PAID } from "@/lib/constants";
 import {
   ORDER_STATUSES,
   type Order,
@@ -36,6 +36,7 @@ const STATUS_ACCENT: Record<OrderStatus, string> = {
   "Mới đặt": "bg-yellow-400",
   "Đã cọc": "bg-blue-500",
   "Đang nấu/gói": "bg-orange-500",
+  "Đã thanh toán": "bg-teal-500",
   "Đã giao": "bg-emerald-500",
   "Đã hủy": "bg-red-500",
 };
@@ -115,7 +116,7 @@ export function OrderCard({
            <Badge className={`shrink-0 border text-[11px] font-bold ${STATUS_BADGE_CLASSES[order.status] ?? ""}`}>
           {STATUS_LABELS[order.status] ?? order.status}
         </Badge>
-        {isPaid ? (
+        {isPaid && order.status !== STATUS_PAID ? (
           <Badge className="mt-1 shrink-0 border border-emerald-300 bg-emerald-50 text-[10px] font-bold text-emerald-700">
             💳 Đã thanh toán
           </Badge>
