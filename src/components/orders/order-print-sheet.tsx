@@ -125,6 +125,7 @@ export function OrderPrintSheet({ order, products }: OrderPrintSheetProps) {
           </p>
         ) : null}
       </section>
+       <SePayCheckout orderId={order.id} amount={remaining} />
 
       {/* ---------------- Chữ ký ---------------- */}
       <section className="grid grid-cols-2 gap-3 pt-2 text-center text-[11px] text-gray-600">
@@ -135,7 +136,7 @@ export function OrderPrintSheet({ order, products }: OrderPrintSheetProps) {
       <p className="mt-1 text-center text-[10px] text-gray-500">
         Cảm ơn quý khách! Hẹn giao bánh đúng ngày 🌺
       </p>
-      <SePayCheckout orderId={order.id} amount={remaining} />
+     
     </div>
   );
 }

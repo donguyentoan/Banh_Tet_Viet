@@ -19,9 +19,8 @@ export const SePayCheckout: React.FC<SePayCheckoutProps> = ({ orderId, amount })
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-xl text-center">
-      <h3 className="text-xl font-bold text-gray-800 mb-2">Thanh toán qua chuyển khoản</h3>
       <div className="flex justify-center mb-4">
-        <img src={qrUrl} alt="SePay QR Code" className="w-64 h-64 object-contain rounded-lg border p-2" />
+        <img src={qrUrl} alt="SePay QR Code" className="w-64 h-64 object-contain rounded-lg border p-1" />
       </div>
     </div>
   );

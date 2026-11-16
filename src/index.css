@@ -86,7 +86,7 @@
   giấy 76mm thì đúng tỉ lệ, chữ vừa đẹp và không bị méo.
 */
 .print-sheet {
-  width: 576px;
+  width: 100%;
   padding: 8px 10px;
   font-family: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
   line-height: 1.3;
