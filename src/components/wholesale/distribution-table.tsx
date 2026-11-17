@@ -12,6 +12,7 @@ import {
 import { formatDateDisplay, formatMoney } from "@/lib/format";
 import { calculateWholesaleTotal } from "@/lib/production";
 import { getWholesalePrice, type Market, type Product } from "@/lib/types";
+import { assignProductCodes } from "@/lib/product-code";
 
 interface DistributionTableProps {
   markets: Market[];
@@ -35,6 +36,9 @@ export function DistributionTable({
   onPrint,
   isPending = false,
 }: DistributionTableProps) {
+  /** Mã bánh hiển thị - tự sinh nếu sản phẩm chưa có `code` */
+  const codeByProductId = assignProductCodes(products);
+
   if (markets.length === 0) {
     return (
       <div className="px-4 py-12 text-center">
@@ -134,7 +138,7 @@ export function DistributionTable({
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 text-xs font-semibold leading-snug text-gray-800">
                         <img src={product.icon} alt={product.name} className="mr-2 inline-block size-5" /> {product.name}
-                        {product.code && <span className="ml-1 text-[10px] text-amber-700">{product.code}</span>}
+                        {codeByProductId.get(product.id) && <span className="ml-1 text-[10px] font-bold text-amber-700">{codeByProductId.get(product.id)}</span>}
                       </div>
                       <span className="shrink-0 text-xs font-semibold text-red-700">{formatMoney(unitPrice)}</span>
                     </div>
@@ -205,9 +209,9 @@ export function DistributionTable({
                           <span className="font-medium text-gray-800">
                             {product.name}
                           </span>
-                          {product.code && (
+                          {codeByProductId.get(product.id) && (
                             <Badge className="border-amber-300 bg-amber-50 text-[10px] font-bold text-amber-800">
-                              {product.code}
+                              {codeByProductId.get(product.id)}
                             </Badge>
                           )}
                         </span>

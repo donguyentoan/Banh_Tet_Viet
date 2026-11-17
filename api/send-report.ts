@@ -82,7 +82,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const cleanToken = (FB_CONFIG.PAGE_ACCESS_TOKEN || "").trim().replace(/\s+/g, '');
     const cleanPsid = (FB_CONFIG.OWNER_PSID || "").trim().replace(/\s+/g, '');
     const fbUrl = `https://graph.facebook.com/v21.0/me/messages?access_token=${encodeURIComponent(cleanToken)}`;
-    
+
     const fbRes = await fetch(fbUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

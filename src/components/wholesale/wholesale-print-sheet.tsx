@@ -1,6 +1,7 @@
 import { formatDateDisplay, formatMoney } from "@/lib/format";
 import { calculateWholesaleTotal } from "@/lib/production";
 import { getWholesalePrice, type Market, type Product } from "@/lib/types";
+import { assignProductCodes } from "@/lib/product-code";
 
 interface WholesalePrintSheetProps {
   market: Market;
@@ -19,6 +20,8 @@ export function WholesalePrintSheet({
   quantities,
   date,
 }: WholesalePrintSheetProps) {
+  /** Mã bánh hiển thị - tự sinh nếu sản phẩm chưa có `code` */
+  const codeByProductId = assignProductCodes(products);
   const rows = products
     .map((product) => ({ product, qty: Number(quantities[product.id] ?? 0) }))
     .filter((row) => row.qty > 0);
@@ -61,6 +64,7 @@ export function WholesalePrintSheet({
         <ul className="text-[12px] leading-tight">
           {rows.map(({ product, qty }) => {
             const unitPrice = getWholesalePrice(product);
+            const code = codeByProductId.get(product.id);
             return (
               <li
                 key={product.id}
@@ -68,6 +72,11 @@ export function WholesalePrintSheet({
               >
                 <div className="flex items-start justify-between gap-2">
                   <span className="min-w-0 flex-1 font-bold text-gray-900">
+                    {code ? (
+                      <span className="mr-1 font-mono text-[11px] font-black text-red-700">
+                        [{code}]
+                      </span>
+                    ) : null}
                     {product.name}
                     {product.weight ? (
                       <span className="font-normal text-gray-500">

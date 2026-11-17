@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useProducts } from "@/hooks/use-orders";
 import { formatMoney } from "@/lib/format";
 import { parseQuickOrder, type ParsedOrder } from "@/lib/quick-parse";
+import { assignProductCodes } from "@/lib/product-code";
 import {
   calculateTotal,
   type OrderFormValues,
@@ -134,6 +135,23 @@ export function QuickParseBox({ onParsed }: QuickParseBoxProps) {
     [text, products],
   );
 
+  /**
+   * Danh sách mã bánh hiển thị trong hướng dẫn cú pháp - lấy động từ danh
+   * mục sản phẩm nên tự cập nhật khi thêm loại bánh mới.
+   */
+  const codeHints = useMemo(() => {
+    const codes = assignProductCodes(products);
+    return products
+      .map((product) => ({
+        code: codes.get(product.id) ?? "",
+        name: product.name
+          .replace(/^Bánh\s+/i, "")
+          .replace(/\s*\(Lớn\)\s*$/i, " lớn")
+          .trim(),
+      }))
+      .filter((hint) => hint.code);
+  }, [products]);
+
   const total = useMemo(
     () => (parsed ? calculateTotal(parsed.quantities, products) : 0),
     [parsed, products],
@@ -191,9 +209,20 @@ export function QuickParseBox({ onParsed }: QuickParseBoxProps) {
 
           <ul className="mt-1.5 space-y-1 text-gray-600">
             <li>
-              <strong className="text-emerald-700">Mã bánh:</strong> CM (chưng
-              thịt), CC (chưng chay), CML (chưng thịt lớn), CCL (chưng chay
-              lớn), TT (tét thịt), TN (tét ngọt), TC (tét chay)
+              <strong className="text-emerald-700">Mã bánh:</strong>{" "}
+              {codeHints.length > 0 ? (
+                codeHints.map((hint, index) => (
+                  <span key={hint.code}>
+                    {index > 0 ? ", " : ""}
+                    <strong className="font-mono text-red-700">{hint.code}</strong>{" "}
+                    ({hint.name})
+                  </span>
+                ))
+              ) : (
+                <span className="italic text-gray-400">
+                  chưa có loại bánh nào trong danh mục
+                </span>
+              )}
             </li>
 
             <li>
@@ -325,7 +354,11 @@ export function QuickParseBox({ onParsed }: QuickParseBoxProps) {
               ))}
               {!hasItems && (
                 <span className="text-xs font-medium text-red-600">
-                  Chưa nhận ra bánh nào. Thử dùng mã CM, CC, CML, CCL, TT, TN, TC hoặc nhập tên bánh.
+                  Chưa nhận ra bánh nào. Thử dùng mã{" "}
+                  {codeHints.length > 0
+                    ? codeHints.map((hint) => hint.code).join(", ")
+                    : "bánh"}{" "}
+                  hoặc nhập tên bánh.
                 </span>
               )}
             </div>

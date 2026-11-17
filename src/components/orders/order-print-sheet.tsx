@@ -2,6 +2,7 @@ import { formatDateDisplay, formatMoney, getRemaining } from "@/lib/format";
 import { STATUS_LABELS, STATUS_PAID } from "@/lib/constants";
 import { type Order, type Product } from "@/lib/types";
 import { SEPAY_PAYMENT_STATUS_PAID } from "@/lib/sepay";
+import { assignProductCodes } from "@/lib/product-code";
 import { SePayCheckout } from "./SePayCheckout";
 
 interface OrderPrintSheetProps {
@@ -20,6 +21,8 @@ interface OrderPrintSheetProps {
  */
 export function OrderPrintSheet({ order, products }: OrderPrintSheetProps) {
   const productMap = new Map(products.map((p) => [p.id, p]));
+  /** Mã bánh hiển thị - tự sinh nếu sản phẩm chưa có `code` */
+  const codeByProductId = assignProductCodes(products);
   const items = Object.entries(order.items).filter(([, qty]) => qty > 0);
   const remaining = getRemaining(order);
   const isPaid =
@@ -80,6 +83,7 @@ export function OrderPrintSheet({ order, products }: OrderPrintSheetProps) {
           {items.map(([productId, qty]) => {
             const product = productMap.get(productId);
             if (!product) return null;
+            const code = codeByProductId.get(productId);
             return (
               <li
                 key={productId}
@@ -88,6 +92,11 @@ export function OrderPrintSheet({ order, products }: OrderPrintSheetProps) {
                 {/* Dòng 1: tên bánh (trái) - số lượng (phải) */}
                 <div className="flex items-start justify-between gap-2">
                   <span className="min-w-0 flex-1 font-bold text-gray-900">
+                    {code ? (
+                      <span className="mr-1 font-mono text-[11px] font-black text-red-700">
+                        [{code}]
+                      </span>
+                    ) : null}
                     {product.name}
                     {product.weight ? (
                       <span className="font-normal text-gray-500">

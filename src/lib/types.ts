@@ -33,18 +33,6 @@ export const DEFAULT_DELIVERY_TIME: string = DELIVERY_TIME_SUGGESTIONS[0];
 /** Ngày mùng 1 Tết Nguyên Đán Đinh Mùi (06/02/2027) - dùng cho đồng hồ đếm ngược */
 export const TET_DATE_ISO = "2027-02-06";
 
-/** Mã ngắn của 6 loại bánh - dùng cho ô ghi nhanh theo cú pháp tin nhắn */
-export const PRODUCT_CODES = [
-  "CM",
-  "CC",
-  "CĐB",
-  "TT",
-  "TC",
-  "TMC",
-] as const;
-
-export type ProductCode = (typeof PRODUCT_CODES)[number];
-
 export type ProductCategory = "CHUNG" | "TET";
 
 export const productSchema = z.object({
@@ -54,7 +42,11 @@ export const productSchema = z.object({
   /** Giá bán sỉ cho mối chợ (nếu bỏ trống = lấy 80% giá bán lẻ) */
   wholesalePrice: z.number().int().min(0).optional(),
   category: z.enum(["CHUNG", "TET"]),
-  /** Mã ngắn để gõ nhanh trong tin nhắn (CM, CC, CĐB, TT, TC, TMC) */
+  /**
+   * Mã ngắn để gõ nhanh trong tin nhắn (VD: CM, CC, CĐB, TT, TC, TMC).
+   * Có thể bỏ trống - hệ thống tự sinh mã từ tên loại bánh
+   * (xem `lib/product-code.ts`).
+   */
   code: z.string().trim().min(1).optional(),
   icon: z.string().default("🍃"),
   weight: z.string().default("1.0 kg"),
@@ -67,7 +59,13 @@ export const productFormSchema = z.object({
   price: z.coerce.number().int().min(0, "Giá phải lớn hơn 0"),
   wholesalePrice: z.coerce.number().int().min(0).optional(),
   category: z.enum(["CHUNG", "TET"]),
-  code: z.string().trim().max(6).optional(),
+  /** Mã ngắn (tối đa 6 ký tự). Bỏ trống = hệ thống tự sinh mã. */
+  code: z
+    .string()
+    .trim()
+    .max(6, "Mã bánh tối đa 6 ký tự")
+    .optional()
+    .or(z.literal("")),
   icon: z.string().trim().min(1, "Vui lòng nhập biểu tượng"),
   weight: z.string().trim().min(1, "Vui lòng nhập khối lượng"),
 });

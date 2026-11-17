@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveNewProductCode } from "./server/product-code.js";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.resolve(rootDir, "data");
@@ -175,8 +176,22 @@ function jsonApiPlugin(): Plugin {
         }
 
         const now = new Date().toISOString();
+
+        // Tự sinh mã bánh nếu người dùng không nhập mã (hoặc mã bị trùng).
+        // Giữ logic giống hệt API Vercel trong `api/[...path].ts`.
+        let bodyWithCode = body;
+        if (key === "products") {
+          const code = resolveNewProductCode(
+            String(body.name ?? ""),
+            String(body.category ?? "CHUNG"),
+            typeof body.code === "string" ? body.code : undefined,
+            items,
+          );
+          bodyWithCode = code ? { ...body, code } : { ...body };
+        }
+
         const created = {
-          ...body,
+          ...bodyWithCode,
           id: body.id ?? uniqueId,
           ...(key === "orders"
             ? { createdAt: body.createdAt ?? now.slice(0, 10) }
@@ -201,7 +216,19 @@ function jsonApiPlugin(): Plugin {
 
         if (method === "PUT" || method === "PATCH") {
           const body = await readBody(req);
-          items[index] = { ...items[index], ...body, id };
+          let bodyWithCode = body;
+          // Sản phẩm chưa có mã -> sinh mã khi cập nhật.
+          if (key === "products" && !items[index].code) {
+            const others = items.filter((_, i) => i !== index);
+            const code = resolveNewProductCode(
+              String(body.name ?? items[index].name ?? ""),
+              String(body.category ?? items[index].category ?? "CHUNG"),
+              typeof body.code === "string" ? body.code : undefined,
+              others,
+            );
+            if (code) bodyWithCode = { ...body, code };
+          }
+          items[index] = { ...items[index], ...bodyWithCode, id };
           await writeJson(file, items);
           return json(res, 200, items[index]);
         }

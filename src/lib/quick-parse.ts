@@ -4,6 +4,7 @@ import {
   DELIVERY_DATE_SUGGESTIONS,
   type Product,
 } from "@/lib/types";
+import { assignProductCodes } from "@/lib/product-code";
 
 export interface ParsedOrder {
   customerName: string;
@@ -37,47 +38,23 @@ export function normalizeCode(code: string): string {
 
 /**
  * Tạo bảng tra mã bánh từ danh mục sản phẩm.
- * - Ưu tiên `product.code` nếu có.
- * - Nếu không có, suy ra từ tên (VD: "Bánh Chưng Thịt" -> "CM").
+ *
+ * Mỗi sản phẩm luôn có một mã:
+ * - Nếu `product.code` đã được đặt tay (hoặc ghi trong `products.json`) -> dùng mã đó.
+ * - Nếu chưa có -> hệ thống tự sinh mã viết tắt từ tên sản phẩm
+ *   (xem `lib/product-code.ts`), và tự thêm hậu tố số nếu trùng.
+ *
+ * Nhờ vậy, thêm loại bánh mới vào danh mục là có mã dùng được ngay, không
+ * cần sửa code nguồn.
  */
 export function buildCodeIndex(products: Product[]): Map<string, Product> {
   const index = new Map<string, Product>();
+  const codes = assignProductCodes(products);
 
   for (const product of products) {
-    if (product.code) {
-      index.set(normalizeCode(product.code), product);
-    }
-  }
-
-  for (const product of products) {
-    const name = normalizeText(product.name);
-    const candidates: string[] = [];
-
-    if (name.includes("chung")) {
-      const isLarge = name.includes("lon");
-
-      if (name.includes("chay")) {
-        candidates.push(isLarge ? "ccl" : "cc");
-      } else {
-        candidates.push(isLarge ? "cml" : "cm");
-      }
-    }
-
-    if (name.includes("tet")) {
-      if (name.includes("ngot")) {
-        candidates.push("tn");
-      } else if (name.includes("chay")) {
-        candidates.push("tc");
-      } else {
-        candidates.push("tt");
-      }
-    }
-
-    for (const code of candidates) {
-      if (!index.has(code)) {
-        index.set(code, product);
-      }
-    }
+    const code = codes.get(product.id);
+    if (!code) continue;
+    index.set(normalizeCode(code), product);
   }
 
   return index;
@@ -303,6 +280,8 @@ export function parseQuickOrder(
 ): ParsedOrder {
   const text = rawText.trim();
   const codeIndex = buildCodeIndex(products);
+  /** Mã hiển thị của từng sản phẩm (đã sinh tự động nếu chưa có `code`) */
+  const codeByProductId = assignProductCodes(products);
 
   const quantities: Record<string, number> = {};
   const unknownCodes: string[] = [];
@@ -333,7 +312,7 @@ export function parseQuickOrder(
       if (!product) continue;
 
       quantities[product.id] = (quantities[product.id] ?? 0) + quantity;
-      const label = product.code ?? code;
+      const label = codeByProductId.get(product.id) ?? code;
       if (!matchedCodes.includes(label)) matchedCodes.push(label);
     }
   }
@@ -376,7 +355,7 @@ for (const { product, alias } of voiceProducts) {
       quantities[product.id] = quantity;
     }
 
-    const label = product.code ?? product.id;
+    const label = codeByProductId.get(product.id) ?? product.id;
 
     if (!matchedCodes.includes(label)) {
       matchedCodes.push(label);

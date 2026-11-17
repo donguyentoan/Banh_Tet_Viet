@@ -1,7 +1,8 @@
 import { clearZeroOnFocus } from "@/lib/utils";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,12 +22,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCreateProduct } from "@/hooks/use-orders";
+import { useCreateProduct, useProducts } from "@/hooks/use-orders";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
 import {
   productFormSchema,
   type ProductFormValues,
+  type Product,
 } from "@/lib/types";
+import { suggestProductCode } from "@/lib/product-code";
 
 const CATEGORY_ITEMS = {
   CHUNG: PRODUCT_CATEGORIES.CHUNG,
@@ -39,12 +42,17 @@ interface AddProductDialogProps {
   onCreated?: () => void;
 }
 
+/** Mảng rỗng ổn định - tránh tạo reference mới mỗi render */
+const EMPTY_PRODUCTS: Product[] = [];
+
 export function AddProductDialog({
   open,
   onOpenChange,
   onCreated,
 }: AddProductDialogProps) {
   const createProduct = useCreateProduct();
+  const { data: products } = useProducts();
+  const existingProducts = products ?? EMPTY_PRODUCTS;
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
@@ -52,6 +60,7 @@ export function AddProductDialog({
       name: "",
       price: 0,
       category: "CHUNG",
+      code: "",
       icon: "🍃",
       weight: "1.0 kg",
     },
@@ -60,14 +69,40 @@ export function AddProductDialog({
 
   const { register, handleSubmit, reset, setValue, watch, formState } = form;
 
+  const nameValue = watch("name");
+  const categoryValue = watch("category");
+
+  /** Mã gợi ý, tự sinh từ tên loại bánh + danh mục hiện có */
+  const suggestedCode = useMemo(() => {
+    if (!nameValue || nameValue.trim().length < 2) return "";
+    return suggestProductCode(
+      nameValue,
+      categoryValue ?? "CHUNG",
+      existingProducts,
+    );
+  }, [nameValue, categoryValue, existingProducts]);
+
+  /**
+   * Người dùng đã tự nhập mã thì giữ nguyên; chưa nhập thì lấy mã gợi ý.
+   * Khi người dùng bấm nút "Tự sinh", mã sẽ được khoá lại (đánh dấu đã chọn).
+   */
+  const [isCodeManual, setIsCodeManual] = useState(false);
+
+  useEffect(() => {
+    if (isCodeManual) return;
+    setValue("code", suggestedCode, { shouldValidate: false });
+  }, [suggestedCode, isCodeManual, setValue]);
+
   function handleClose() {
     reset({
       name: "",
       price: 0,
       category: "CHUNG",
+      code: "",
       icon: "🍃",
       weight: "1.0 kg",
     });
+    setIsCodeManual(false);
     onOpenChange(false);
   }
 
@@ -91,12 +126,16 @@ export function AddProductDialog({
                 name: values.name.trim(),
                 price: Number(values.price) || 0,
                 category: values.category,
+                // Gửi mã đã sinh/nhập. Nếu bỏ trống, server sẽ tự sinh mã.
+                code: values.code?.trim() ? values.code.trim() : undefined,
                 icon: (values.category === "CHUNG" ? "/banh-chung.png" : "/banh-tet.png"),
                 weight: values.weight.trim() || "1.0 kg",
               },
               {
                 onSuccess: (product) => {
-                  toast.success(`Đã thêm loại bánh "${product.name}"`);
+                  toast.success(
+                    `Đã thêm loại bánh "${product.name}" (mã ${product.code ?? "—"})`,
+                  );
                   onCreated?.();
                   handleClose();
                 },
@@ -181,6 +220,61 @@ export function AddProductDialog({
                   <SelectItem value="TET">{PRODUCT_CATEGORIES.TET}</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Mã bánh - tự sinh từ tên, người dùng có thể sửa lại */}
+            <div className="sm:col-span-2">
+              <Label htmlFor="product-code" className="mb-1 text-xs font-semibold">
+                Mã Bánh Ngắn{" "}
+                <span className="font-normal text-gray-400">
+                  (gõ nhanh trong tin nhắn)
+                </span>
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="product-code"
+                  placeholder="VD: CM"
+                  maxLength={6}
+                  className="w-28 font-mono font-bold uppercase text-red-700"
+                  {...register("code", {
+                    onChange: (event) => {
+                      setIsCodeManual(true);
+                      event.target.value = event.target.value.toUpperCase();
+                    },
+                  })}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100"
+                  disabled={!suggestedCode}
+                  onClick={() => {
+                    setValue("code", suggestedCode);
+                    setIsCodeManual(true);
+                  }}
+                  title="Sinh lại mã từ tên loại bánh"
+                >
+                  <Sparkles className="size-3.5" />
+                  Tự sinh
+                </Button>
+                {suggestedCode && !isCodeManual && (
+                  <span className="text-[11px] text-gray-500">
+                    Đã tự sinh:{" "}
+                    <strong className="font-mono text-red-700">
+                      {suggestedCode}
+                    </strong>
+                  </span>
+                )}
+              </div>
+              {formState.errors.code && (
+                <p className="mt-1 text-xs text-red-600">
+                  {String(formState.errors.code.message)}
+                </p>
+              )}
+              <p className="mt-1 text-[11px] text-gray-400">
+                Để trống nếu muốn hệ thống tự sinh mã. Mã tối đa 6 ký tự.
+              </p>
             </div>
           </div>
 
