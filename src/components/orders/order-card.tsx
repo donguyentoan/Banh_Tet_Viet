@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatDateDisplay, formatMoney, getRemaining } from "@/lib/format";
-import { STATUS_BADGE_CLASSES, STATUS_LABELS, STATUS_PAID } from "@/lib/constants";
+import {STATUS_LABELS} from "@/lib/constants";
 import {
   ORDER_STATUSES,
   type Order,
@@ -71,7 +71,6 @@ export function OrderCard({
 
   const remaining = getRemaining(order);
   const isCancelled = order.status === "Đã hủy";
-  const isPaid = order.paymentStatus === SEPAY_PAYMENT_STATUS_PAID;
 
   return (
     <div
