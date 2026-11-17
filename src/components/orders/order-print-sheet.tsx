@@ -144,12 +144,12 @@ export function OrderPrintSheet({ order, products }: OrderPrintSheetProps) {
       </div>
 
       {/* ---------------- Chữ ký ---------------- */}
-      <section className="grid grid-cols-2 gap-3 pt-2 text-center text-[11px] text-gray-600">
+      <section className="grid grid-cols-2 gap-3 pt-8 text-center text-[11px] text-gray-600">
         <SignatureBlock title="Người Đặt Bánh" hint="(Ký & ghi rõ họ tên)" />
         <SignatureBlock title="Bánh Tết Gia Truyền" hint="(Xác nhận & Đóng dấu)" />
       </section>
 
-      <p className="mt-1 text-center text-[10px] text-gray-500">
+      <p className="mt-12 text-center text-[10px] text-gray-500">
         Cảm ơn quý khách! Hẹn giao bánh đúng ngày 🌺
       </p>
      

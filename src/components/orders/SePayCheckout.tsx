@@ -5,7 +5,6 @@ import {
   Copy,
   Download,
   QrCode,
-  ShieldCheck,
   Wallet,
 } from "lucide-react";
 import { formatMoney } from "@/lib/format";
@@ -106,22 +105,10 @@ export const SePayCheckout: React.FC<SePayCheckoutProps> = ({
   }
 
   return (
-    <section className="print-sheet overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-amber-50/60 shadow-sm">
-      {/* ---------------- Tiêu đề ---------------- */}
-      <header className="flex items-center gap-2 border-b border-emerald-200/70 bg-emerald-600 px-4 py-2.5 text-white">
-        <QrCode className="size-4 shrink-0" />
-        <h2 className="text-[13px] font-black uppercase tracking-wide">
-          Thanh toán QR
-        </h2>
-        <span className="ml-auto rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold">
-          VietQR / SePay
-        </span>
-      </header>
-
-      <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start">
-        {/* ---------------- QR ---------------- */}
+    <section className="print-sheet overflow-hidden !py-3 !px-0">
+      <div className="flex justify-between gap-4 sm:flex-row sm:items-start">
         <div className="mx-auto shrink-0 text-center sm:mx-0">
-          <div className="rounded-xl border-2 border-dashed border-emerald-300 bg-white p-2 shadow-inner">
+          <div className="rounded-xl border-1 bg-white p-2">
             {hasAmount && qrImageUrl ? (
               qrFailed ? (
                 <div className="flex size-[180px] flex-col items-center justify-center gap-2 text-center text-emerald-700">
@@ -155,7 +142,7 @@ export const SePayCheckout: React.FC<SePayCheckoutProps> = ({
               <button
                 type="button"
                 onClick={downloadQr}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-white px-2.5 py-1 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-50"
+                className="inline-flex items-center gap-1.5  bg-white px-2.5 py-1 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-50"
               >
                 <Download className="size-3.5" />
                 Tải ảnh QR
@@ -173,10 +160,8 @@ export const SePayCheckout: React.FC<SePayCheckoutProps> = ({
             </div>
           ) : null}
         </div>
-
-        {/* ---------------- Thông tin chuyển khoản ---------------- */}
         <div className="min-w-0 flex-1 space-y-2">
-          <div className="rounded-lg border border-emerald-200 bg-white/80 px-3 py-2">
+          <div className="bg-white/80 px-3 py-2">
             <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-700">
               Số tiền thanh toán
             </p>
@@ -185,7 +170,7 @@ export const SePayCheckout: React.FC<SePayCheckoutProps> = ({
             </p>
           </div>
 
-          <dl className="space-y-1.5 rounded-lg border border-emerald-200 bg-white/80 px-3 py-2 text-[11px] leading-snug">
+          <dl className="space-y-1.5 bg-white/80 px-3 py-2 text-[11px] leading-snug">
             <InfoRow
               label="Ngân hàng"
               value={SEPAY_BANK.bank}
@@ -222,12 +207,6 @@ export const SePayCheckout: React.FC<SePayCheckoutProps> = ({
               copied={copiedField === "des"}
             />
           </dl>
-
-          <p className="flex items-start gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1.5 text-[10px] font-medium leading-snug text-amber-800">
-            <ShieldCheck className="mt-px size-3.5 shrink-0" />
-            Giữ nguyên <strong>nội dung chuyển khoản</strong> để hệ thống tự
-            động cập nhật trạng thái đơn hàng.
-          </p>
 
           {onSuccess ? (
             <button
