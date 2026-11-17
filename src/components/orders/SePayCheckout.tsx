@@ -106,7 +106,7 @@ export const SePayCheckout: React.FC<SePayCheckoutProps> = ({
 
   return (
     <section className="print-sheet overflow-hidden !py-3 !px-0">
-      <div className="flex justify-between gap-4 sm:flex-row sm:items-start">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
         <div className="mx-auto shrink-0 text-center sm:mx-0">
           <div className="rounded-xl border-1 bg-white p-2">
             {hasAmount && qrImageUrl ? (
