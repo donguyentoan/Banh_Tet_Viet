@@ -112,15 +112,7 @@ export function OrderCard({
             {order.phone}
           </p>
         </div>
-        <div className="flex items-center gap-1 flex-col">
-           <Badge className={`shrink-0 border text-[11px] font-bold ${STATUS_BADGE_CLASSES[order.status] ?? ""}`}>
-          {STATUS_LABELS[order.status] ?? order.status}
-        </Badge>
-        {isPaid && order.status !== STATUS_PAID ? (
-          <Badge className="mt-1 shrink-0 border border-emerald-300 bg-emerald-50 text-[10px] font-bold text-emerald-700">
-            💳 Đã thanh toán
-          </Badge>
-        ) : null}
+        <div className="flex items-center gap-1 flex-col">  
         {order.phone !== "" ? (
            <Button
             variant="ghost"
