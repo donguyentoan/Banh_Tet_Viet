@@ -25,7 +25,6 @@ import {
   type OrderStatus,
   type Product,
 } from "@/lib/types";
-import { SEPAY_PAYMENT_STATUS_PAID } from "@/lib/sepay";
 
 const STATUS_ITEMS = Object.fromEntries(
   ORDER_STATUSES.map((status) => [status, STATUS_LABELS[status]]),
