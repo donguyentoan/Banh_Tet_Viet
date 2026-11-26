@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Check,
-  Copy,
   QrCode,
 } from "lucide-react";
 import {
