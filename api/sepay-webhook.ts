@@ -50,14 +50,33 @@ export default async function handler(
 
   try {
     const body = (req.body ?? {}) as SepayWebhookBody;
-    const secret = 'whsec_EGgflASAM8WKvdN7E7275Od5spa4OSTM';
+
+    /**
+     * Secret dùng để xác thực webhook SePay.
+     *
+     * ⚠️ KHÔNG hard-code ở đây - đọc từ biến môi trường trên Vercel:
+     *    Settings > Environment Variables > PAYMENT_SEPAY_SECRET
+     *
+     * File này chạy ở phía SERVER (Vercel Function) nên đọc process.env an toàn.
+     */
+    const secret = (process.env.PAYMENT_SEPAY_SECRET || "").trim();
+    if (!secret) {
+      console.error(
+        "[sepay] Thiếu biến môi trường PAYMENT_SEPAY_SECRET - " +
+          "webhook không thể xác thực chữ ký.",
+      );
+      return res.status(503).json({
+        success: false,
+        message: "Chưa cấu hình PAYMENT_SEPAY_SECRET trên server.",
+      });
+    }
 
     const signature = req.headers['x-sepay-signature'] || '';
     const timestamp = req.headers['x-sepay-timestamp'] || '';
     const payload = JSON.stringify(req.body);
 
     const expected = 'sha256=' + crypto.createHmac('sha256', secret)
-    .update(timestamp + '.' + payload).digest('hex');
+      .update(timestamp + '.' + payload).digest('hex');
 
     if (signature !== expected) {
         return res.status(401).send('Invalid signature');
