@@ -5,7 +5,7 @@ import {
   normalizeOrderId,
   SEPAY_PAYMENT_STATUS_PAID,
 } from "../server/sepay.js";
-
+import crypto from 'crypto';
 /** Đường dẫn Blob phải KHỚP chính xác với file mà app đang dùng. */
 const BLOB_PATH = "collections/orders.json";
 
@@ -50,7 +50,6 @@ export default async function handler(
 
   try {
     const body = (req.body ?? {}) as SepayWebhookBody;
-    const crypto = require('crypto');
     const secret = 'whsec_EGgflASAM8WKvdN7E7275Od5spa4OSTM';
 
     const signature = req.headers['x-sepay-signature'] || '';
