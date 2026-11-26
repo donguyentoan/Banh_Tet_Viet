@@ -1,17 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 import {
   Check,
   Copy,
-  Download,
   QrCode,
-  Wallet,
 } from "lucide-react";
-import { formatMoney } from "@/lib/format";
 import {
   buildPaymentContent,
   buildVietQrUrl,
-  SEPAY_BANK,
 } from "@/lib/sepay";
 
 interface SePayCheckoutProps {
@@ -53,7 +48,6 @@ export const SePayCheckout: React.FC<SePayCheckoutProps> = ({
   amount,
   onSuccess,
 }) => {
-  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const paymentContent = useMemo(
     () => buildPaymentContent(orderId),
@@ -82,27 +76,6 @@ export const SePayCheckout: React.FC<SePayCheckoutProps> = ({
 
   const amountValue = Math.max(0, Math.round(amount));
   const hasAmount = amountValue > 0;
-
-  async function copyText(field: string, value: string, label: string) {
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopiedField(field);
-      setTimeout(() => setCopiedField(null), 1800);
-      toast.success(`Đã sao chép ${label}`);
-    } catch {
-      toast.error("Không sao chép được, hãy bấm giữ để chọn thủ công.");
-    }
-  }
-
-  function downloadQr() {
-    const link = document.createElement("a");
-    link.href = qrImageUrl ?? qrUrl;
-    link.download = `qr-thanh-toan-${orderId}.png`;
-    link.rel = "noopener";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  }
 
   return (
     <section className="print-sheet overflow-hidden !py-3 !px-0">
