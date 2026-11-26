@@ -112,6 +112,12 @@ export const orderSchema = z.object({
 
 export type Order = z.infer<typeof orderSchema>;
 
+/**
+ * Trạng thái thanh toán mà webhook SePay đặt khi khách đã trả đủ.
+ * Dùng chung với server (`server/order-lock.ts`) để hai bên luôn khớp nhau.
+ */
+export { PAYMENT_STATUS_PAID, ORDER_LOCKED_MESSAGE, isOrderLocked } from "../../server/order-lock";
+
 export const orderFormSchema = z
   .object({
     customerName: z.string().trim().min(2, "Vui lòng nhập họ tên khách hàng"),

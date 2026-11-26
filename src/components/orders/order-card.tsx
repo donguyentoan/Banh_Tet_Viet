@@ -21,6 +21,7 @@ import { formatDateDisplay, formatMoney, getRemaining } from "@/lib/format";
 import {STATUS_LABELS} from "@/lib/constants";
 import {
   ORDER_STATUSES,
+  isOrderLocked,
   type Order,
   type OrderStatus,
   type Product,
@@ -58,6 +59,9 @@ export function OrderCard({
   onStatusChange,
 }: OrderCardProps) {
   const productMap = new Map(products.map((p) => [p.id, p]));
+
+  /** Đơn đã thanh toán: khoá nút Sửa / Xóa. */
+  const isLocked = isOrderLocked(order);
 
   let totalCakesInOrder = 0;
 
@@ -200,8 +204,9 @@ export function OrderCard({
             variant="ghost"
             size="icon"
             className="size-10 text-amber-600 hover:bg-amber-50 sm:size-8"
-            title="Sửa đơn hàng"
+            title={isLocked ? "Đơn đã thanh toán - không thể sửa" : "Sửa đơn hàng"}
             onClick={() => onEdit(order.id)}
+            disabled={isLocked}
           >
             <Pencil className="size-3.5" />
           </Button>
@@ -209,8 +214,9 @@ export function OrderCard({
             variant="ghost"
             size="icon"
             className="size-10 text-red-600 hover:bg-red-50 sm:size-8"
-            title="Xóa đơn"
+            title={isLocked ? "Đơn đã thanh toán - không thể xóa" : "Xóa đơn"}
             onClick={() => onDelete(order.id)}
+            disabled={isLocked}
           >
             <Trash2 className="size-3.5" />
           </Button>

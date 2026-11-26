@@ -24,6 +24,8 @@ import {
   DEFAULT_DELIVERY_TIME,
   DELIVERY_DATE_SUGGESTIONS,
   DELIVERY_TIME_SUGGESTIONS,
+  isOrderLocked,
+  ORDER_LOCKED_MESSAGE,
   ORDER_STATUSES,
   orderFormSchema,
   type Order,
@@ -78,6 +80,9 @@ export function OrderForm({
   const products = data ?? EMPTY_PRODUCTS;
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const timeListId = useId();
+
+  /** Đơn đã thanh toán: khoá form, không cho lưu. */
+  const isLocked = order ? isOrderLocked(order) : false;
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderFormSchema),
@@ -194,6 +199,12 @@ export function OrderForm({
         className={className ?? "space-y-6"}
         noValidate
       >
+        {isLocked && (
+          <p className="flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+            🔒 {ORDER_LOCKED_MESSAGE}
+          </p>
+        )}
+
         <section className="space-y-4 rounded-2xl border border-amber-200 bg-gradient-to-b from-amber-50/60 to-white p-4 sm:p-5">
           <h4 className="flex items-center gap-2.5 text-sm font-bold uppercase tracking-wider text-red-800">
             <span className="flex size-6 items-center justify-center rounded-full bg-red-700 text-xs font-black text-white">
@@ -529,7 +540,7 @@ export function OrderForm({
             </Button>
             <Button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || isLocked}
               className="bg-red-700 font-bold text-white hover:bg-red-800"
             >
               {isPending ? "Đang lưu..." : submitLabel}
@@ -538,7 +549,7 @@ export function OrderForm({
         ) : (
           <Button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || isLocked}
             className="w-full bg-red-700 font-bold text-white hover:bg-red-800"
           >
             {isPending ? "Đang lưu..." : submitLabel}

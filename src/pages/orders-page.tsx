@@ -16,7 +16,7 @@ import {
   useUpdateOrder,
 } from "@/hooks/use-orders";
 import { applyFilters } from "@/lib/filter";
-import { calculateTotal, type OrderFormValues, type OrderStatus, type Order, type Product } from "@/lib/types";
+import { calculateTotal, isOrderLocked, ORDER_LOCKED_MESSAGE, type OrderFormValues, type OrderStatus, type Order, type Product } from "@/lib/types";
 import { useBakeryStore } from "@/stores/bakery-store";
 
 /** Mảng rỗng ổn định - tránh tạo reference mới mỗi render */
@@ -78,6 +78,13 @@ export function OrdersPage() {
     };
 
     if (editingOrderId) {
+      // Đơn đã thanh toán không được sửa.
+      if (editingOrder && isOrderLocked(editingOrder)) {
+        toast.error(ORDER_LOCKED_MESSAGE);
+        closeForm();
+        return;
+      }
+
       updateOrder.mutate(
         { id: editingOrderId, payload },
         {
@@ -111,6 +118,13 @@ export function OrdersPage() {
   }
 
   function handleDelete(id: string) {
+    // Đơn đã thanh toán không được xóa.
+    const target = ordersData.find((order) => order.id === id);
+    if (target && isOrderLocked(target)) {
+      toast.error(ORDER_LOCKED_MESSAGE);
+      return;
+    }
+
     if (!window.confirm(`Bạn có chắc chắn muốn xóa đơn hàng #${id} không?`)) return;
     deleteOrder.mutate(id, {
       onSuccess: () => toast.warning(`Đã xóa đơn hàng #${id}`),

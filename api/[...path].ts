@@ -9,6 +9,7 @@ import {
   type ApiResponse,
 } from "../server/admin-auth.js";
 import { resolveNewProductCode } from "../server/product-code.js";
+import { isOrderLocked } from "../server/order-lock.js";
 
 interface CollectionRequest extends ApiRequest {
   url?: string;
@@ -229,6 +230,13 @@ export default async function handler(req: CollectionRequest, res: ApiResponse) 
       }
 
       if (method === "PUT" || method === "PATCH") {
+        // Đơn đã thanh toán không được sửa (tránh mất thông tin đơn đã thu tiền).
+        if (collection === "orders" && isOrderLocked(items[index])) {
+          return json(res, 409, {
+            message: "Đơn đã thanh toán không thể sửa.",
+          });
+        }
+
         const body = await readBody(req);
         let bodyWithCode = body;
         // Sản phẩm chưa có mã (bản cũ trong data/products.json) -> sinh mã
@@ -249,6 +257,13 @@ export default async function handler(req: CollectionRequest, res: ApiResponse) 
       }
 
       if (method === "DELETE") {
+        // Đơn đã thanh toán không được xóa (tránh mất thông tin đơn đã thu tiền).
+        if (collection === "orders" && isOrderLocked(items[index])) {
+          return json(res, 409, {
+            message: "Đơn đã thanh toán không thể xóa.",
+          });
+        }
+
         const [removed] = items.splice(index, 1);
         await writeCollection(collection, items, etag);
         return json(res, 200, removed);

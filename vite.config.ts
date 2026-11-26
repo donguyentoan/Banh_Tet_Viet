@@ -5,6 +5,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveNewProductCode } from "./server/product-code.js";
+import { isOrderLocked } from "./server/order-lock.js";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.resolve(rootDir, "data");
@@ -215,6 +216,13 @@ function jsonApiPlugin(): Plugin {
         }
 
         if (method === "PUT" || method === "PATCH") {
+          // Đơn đã thanh toán không được sửa (khớp với api/[...path].ts).
+          if (key === "orders" && isOrderLocked(items[index])) {
+            return json(res, 409, {
+              message: "Đơn đã thanh toán không thể sửa.",
+            });
+          }
+
           const body = await readBody(req);
           let bodyWithCode = body;
           // Sản phẩm chưa có mã -> sinh mã khi cập nhật.
@@ -234,6 +242,13 @@ function jsonApiPlugin(): Plugin {
         }
 
         if (method === "DELETE") {
+          // Đơn đã thanh toán không được xóa (khớp với api/[...path].ts).
+          if (key === "orders" && isOrderLocked(items[index])) {
+            return json(res, 409, {
+              message: "Đơn đã thanh toán không thể xóa.",
+            });
+          }
+
           const removed = items.splice(index, 1)[0];
           await writeJson(file, items);
           return json(res, 200, removed);
