@@ -50,6 +50,19 @@ export default async function handler(
 
   try {
     const body = (req.body ?? {}) as SepayWebhookBody;
+    const crypto = require('crypto');
+    const secret = 'whsec_EGgflASAM8WKvdN7E7275Od5spa4OSTM';
+
+    const signature = req.headers['x-sepay-signature'] || '';
+    const timestamp = req.headers['x-sepay-timestamp'] || '';
+    const payload = JSON.stringify(req.body);
+
+    const expected = 'sha256=' + crypto.createHmac('sha256', secret)
+    .update(timestamp + '.' + payload).digest('hex');
+
+    if (signature !== expected) {
+        return res.status(401).send('Invalid signature');
+    }
 
     const content = String(body.content ?? "").trim();
     if (!content) {
