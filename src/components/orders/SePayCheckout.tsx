@@ -45,8 +45,7 @@ function hasAmountValue(amount: number): boolean {
  */
 export const SePayCheckout: React.FC<SePayCheckoutProps> = ({
   orderId,
-  amount,
-  onSuccess,
+  amount
 }) => {
 
   const paymentContent = useMemo(
@@ -186,45 +185,3 @@ export const SePayCheckout: React.FC<SePayCheckoutProps> = ({
   );
 }
 
-function InfoRow({
-  label,
-  value,
-  mono,
-  highlight,
-  onCopy,
-  copied,
-}: {
-  label: string;
-  value: string;
-  mono?: boolean;
-  highlight?: boolean;
-  onCopy: () => void;
-  copied: boolean;
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <dt className="w-[74px] shrink-0 text-emerald-700">{label}:</dt>
-      <dd
-        className={[
-          "min-w-0 flex-1 break-all font-bold text-gray-900",
-          mono ? "font-mono tracking-tight" : "",
-          highlight ? "text-red-700" : "",
-        ].join(" ")}
-      >
-        {value}
-      </dd>
-      <button
-        type="button"
-        onClick={onCopy}
-        aria-label={`Sao chép ${label}`}
-        className="no-print shrink-0 rounded p-1 text-emerald-700 transition hover:bg-emerald-100"
-      >
-        {copied ? (
-          <Check className="size-3.5 text-emerald-600" />
-        ) : (
-          <Copy className="size-3.5" />
-        )}
-      </button>
-    </div>
-  );
-}
