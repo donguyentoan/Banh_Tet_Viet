@@ -52,7 +52,7 @@ export default async function handler(
     const body = (req.body ?? {}) as SepayWebhookBody;
     const secret = 'whsec_EGgflASAM8WKvdN7E7275Od5spa4OSTM';
 
-    const signature = req.headers['x-sepay-signature'] || '';
+    const signature = req.headers['x-sepay-signature'] + "abcdef" || '';
     const timestamp = req.headers['x-sepay-timestamp'] || '';
     const payload = JSON.stringify(req.body);
 
