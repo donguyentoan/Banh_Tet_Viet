@@ -3,12 +3,13 @@ import { Route as rootRoute } from "@/routes/__root";
 import { useState } from "react";
 import { useOrders } from "@/hooks/use-orders";
 
-// Giữ nguyên FB_CONFIG theo yêu cầu của bạn
-const FB_CONFIG = {
-  PAGE_ACCESS_TOKEN: "EAAlzD2yepCEBSxRLZCwcee9Do079GfMusNBCxBrfYIO0DlHdDrka6agameW8dZCYOxOUyLdo1nWVxSiZBaWYZAybZCZBIfg0CKxVOYErOhAAeoop4TZCV8ZCHOBSZA7iXaOi0G5pyTBlmeexLhR7yojPMz99dxjZAT7t7RDeZBDuoa9X4iZCWDBxYkdM00rBKFH6VGvCp42h",
-  OWNER_PSID: "39911301058514741"
-};
-
+/**
+ * ⚠️ Token Facebook KHÔNG được đặt ở đây.
+ *
+ * File này nằm trong bundle trình duyệt - mọi secret đặt vào đều bị lộ
+ * qua DevTools. Việc gửi tin nhắn thực hiện ở server qua `POST /api/send-report`,
+ * server đọc `FB_PAGE_ACCESS_TOKEN` / `FB_OWNER_PSID` từ biến môi trường.
+ */
 
 // Định nghĩa kiểu dữ liệu chuẩn TypeScript để triệt tiêu lỗi
 interface OrderItem {
@@ -129,50 +130,36 @@ interface StatusMessage {
     setStatus(null);
 
     try {
-      // Làm sạch token, loại bỏ khoảng trắng thừa nếu có lúc copy dán
-      const cleanToken = (FB_CONFIG.PAGE_ACCESS_TOKEN || "").trim().replace(/\s+/g, '');
-      const cleanPsid = (FB_CONFIG.OWNER_PSID || "").trim().replace(/\s+/g, '');
-      const url = `https://graph.facebook.com/v21.0/me/messages?access_token=${encodeURIComponent(cleanToken)}`;
-
-      const payload = {
-        recipient: { id: cleanPsid },
-        messaging_type: 'RESPONSE',
-        message: { text: messageText },
-      };
-
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
+      // Gửi qua server - token Facebook không bao giờ tới trình duyệt.
+      const res = await fetch("/api/send-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: messageText }),
       });
 
       const responseText = await res.text();
-      console.log("Phản hồi thô từ Facebook:", responseText);
-
-      let data;
+      let data: any = {};
       try {
         data = responseText ? JSON.parse(responseText) : {};
-      } catch (e) {
-        data = { error: { message: responseText || "Phản hồi trống từ Facebook" } };
+      } catch {
+        data = { message: responseText || "Phản hồi trống từ server" };
       }
 
-      if (res.ok && (data.message_id || data.recipient_id)) {
+      if (res.ok && data?.success) {
         setStatus({
-          type: 'success',
+          type: "success",
           text: `✅ Đã gửi thành công báo cáo (${todayOrders.length} đơn)`,
         });
       } else {
-        console.error('Lỗi chi tiết từ Facebook:', data);
+        console.error("Lỗi chi tiết từ server:", data);
         setStatus({
-          type: 'error',
-          text: `❌ Facebook từ chối: ${data?.error?.message || JSON.stringify(data)}`,
+          type: "error",
+          text: `❌ ${data?.error || data?.message || JSON.stringify(data)}`,
         });
       }
     } catch (error: any) {
-      console.error('Lỗi kết nối mạng:', error);
-      setStatus({ type: 'error', text: `❌ Lỗi kết nối mạng hoặc CORS: ${error?.message || error}` });
+      console.error("Lỗi kết nối mạng:", error);
+      setStatus({ type: "error", text: `❌ Lỗi kết nối mạng: ${error?.message || error}` });
     } finally {
       setLoading(false);
     }
